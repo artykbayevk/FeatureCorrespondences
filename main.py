@@ -35,11 +35,11 @@ def rootSIFT(img_path):
     (kps, descs) = rs.compute(gray, kps)
     img = cv2.drawKeypoints(gray, kps, None,flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     cv2.imwrite(base_path+'test_kp_'+img_path.split("_")[1], img)
-    return kps,descs
 
-#%%
-a1,b = rootSIFT(img1_path)
-a2,b = rootSIFT(img2_path)
+    pos = [np.array([x.pt[0], x.pt[1]]) for x in kps]
 
-print(a1[1].pt)
-print(a2[1].pt)
+    return np.array(pos)
+    #TODO delete unique samples from result
+
+    #TODO copy and past this code to the julia
+
