@@ -38,5 +38,8 @@ def rootSIFT(img_path):
     return kps,descs
 
 #%%
-a,b = rootSIFT(img1_path)
-a,b = rootSIFT(img2_path)
+a1,b = rootSIFT(img1_path)
+a2,b = rootSIFT(img2_path)
+
+print(a1[1].pt)
+print(a2[1].pt)
