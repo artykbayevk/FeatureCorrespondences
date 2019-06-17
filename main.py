@@ -6,9 +6,8 @@ global base_path
 base_path = "data\\test\\"
 
 
-img1_path = "data\\test\\test_1.jpg"
-img2_path = "data\\test\\test_2.jpg"
-
+img1_path = "data/test/test_1.jpg"
+img2_path = "data/test/test_2.jpg"
 
 
 class RootSIFT:
@@ -24,8 +23,9 @@ class RootSIFT:
         descs = np.sqrt(descs)
         return (kps, descs)
 
-
 #%%
+
+
 def rootSIFT(img_path):
     image = cv2.imread(img_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -42,4 +42,3 @@ def rootSIFT(img_path):
     #TODO delete unique samples from result
 
     #TODO copy and past this code to the julia
-
