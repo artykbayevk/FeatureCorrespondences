@@ -39,6 +39,3 @@ def rootSIFT(img_path):
     pos = [np.array([x.pt[0], x.pt[1]]) for x in kps]
 
     return np.array(pos)
-    #TODO delete unique samples from result
-
-    #TODO copy and past this code to the julia
