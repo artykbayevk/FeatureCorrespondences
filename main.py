@@ -26,18 +26,20 @@ class RootSIFT:
 #%%
 
 
-def rootSIFT(img_path, resize = False):
+def rootSIFT(img_path, resize = False, n_kp = 100):
     image = cv2.imread(img_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    print(gray.shape)
     if resize:
         scale_percent = 10    # percent of original size
         width = int(image.shape[1] * scale_percent / 100)
         height = int(image.shape[0] * scale_percent / 100)
         dim = (width, height)
         gray = cv2.resize(gray, dim, interpolation = cv2.INTER_AREA)
-    print(gray.shape)
-    sift = cv2.xfeatures2d.SIFT_create()
+    if n_kp == 0:
+        sift = cv2.xfeatures2d.SIFT_create()
+    else:
+        sift = cv2.xfeatures2d.SIFT_create(n_kp)
+
     (kps, descs) = sift.detectAndCompute(gray, None)
     rs = RootSIFT()
     (kps, descs) = rs.compute(gray, kps)
@@ -48,5 +50,6 @@ def rootSIFT(img_path, resize = False):
 
     return np.array(pos)
 
-res = rootSIFT(img1_path,True)
-res = rootSIFT(img2_path, True)
+res = rootSIFT(img1_path, n_kp=0)
+res = rootSIFT(img2_path, n_kp=0)
+res.shape
