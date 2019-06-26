@@ -6,8 +6,8 @@ global base_path
 base_path = "data\\test\\"
 
 
-img1_path = "data/test/test_1.jpg"
-img2_path = "data/test/test_2.jpg"
+img1_path = "data/test/001_L.png"
+img2_path = "data/test/001_R.png"
 
 
 class RootSIFT:
@@ -26,9 +26,17 @@ class RootSIFT:
 #%%
 
 
-def rootSIFT(img_path):
+def rootSIFT(img_path, resize = False):
     image = cv2.imread(img_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    print(gray.shape)
+    if resize:
+        scale_percent = 10    # percent of original size
+        width = int(image.shape[1] * scale_percent / 100)
+        height = int(image.shape[0] * scale_percent / 100)
+        dim = (width, height)
+        gray = cv2.resize(gray, dim, interpolation = cv2.INTER_AREA)
+    print(gray.shape)
     sift = cv2.xfeatures2d.SIFT_create()
     (kps, descs) = sift.detectAndCompute(gray, None)
     rs = RootSIFT()
@@ -39,3 +47,6 @@ def rootSIFT(img_path):
     pos = [np.array([x.pt[0], x.pt[1]]) for x in kps]
 
     return np.array(pos)
+
+res = rootSIFT(img1_path,True)
+res = rootSIFT(img2_path, True)
