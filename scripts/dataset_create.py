@@ -5,6 +5,8 @@ from math import pi
 from scipy.spatial.distance import euclidean
 from itertools import product
 import cv2
+
+#%%
 origin_p_x = 0.
 origin_p_y = 0.
 
