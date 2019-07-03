@@ -1,7 +1,7 @@
 #%%
 import cv2
 import numpy as np
-
+import scripts.Scene3D.SceneClass
 global base_path
 base_path = "data\\test\\"
 

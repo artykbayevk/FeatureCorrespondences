@@ -2,7 +2,6 @@
 import numpy as np
 import cv2
 import os
-
 #%%
 BASE = os.getcwd()
 img1_path = os.path.join(BASE, "data","test","001_L.png")
@@ -41,7 +40,7 @@ def rootSIFT(img_path, resize = False, n_kp = 100):
     rs = RootSIFT()
     (kps, descs) = rs.compute(gray, kps)
 
-    # pos = [np.array([x.pt[0], x.pt[1]]) for x in kps]
+    pos = [np.array([x.pt[0], x.pt[1]]) for x in kps]
 
     # return np.array(pos)
     return kps, descs
@@ -78,4 +77,11 @@ pts2 = np.int32(pts2)
 pts1.shape
 pts2.shape
 
+
+
+
+#%%
 F, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS)
+
+#%%
+F
