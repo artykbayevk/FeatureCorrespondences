@@ -1,6 +1,10 @@
 import cv2
 import numpy as np
 import os
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+#%%
 
 class InnerFeatures:
     def __init__(self, kps, des, pos):
@@ -67,7 +71,6 @@ class SceneReconstruction3D:
         pts1 = []
         pts2 = []
 
-        # ratio test as per Lowe's paper
         for i, (m, n) in enumerate(matches):
             if m.distance < 0.8 * n.distance:
                 good.append(m)
@@ -80,7 +83,54 @@ class SceneReconstruction3D:
     def LPMatcher(self, pts1, pts2, correspondences):
         print(pts1.shape, pts2.shape, correspondences.shape)
 
+    def fundamental_matrix(self):
+        self.F, self.Fmask = cv2.findFundamentalMat(self.match_pts1,
+                                                    self.match_pts2,
+                                                    cv2.FM_RANSAC, 0.1, 0.99)
 
+    def essential_matrix(self):
+        self.E = self.K.T.dot(self.F).dot(self.K)
+
+    def _find_camera_matrices_rt(self):
+        U, S, Vt = np.linalg.svd(self.E)
+        W = np.array([0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+                      1.0]).reshape(3, 3)
+
+        first_inliers = []
+        second_inliers = []
+        for i in range(len(self.Fmask)):
+            if self.Fmask[i]:
+                first_inliers.append(self.K_inv.dot([self.match_pts1[i][0],
+                                                     self.match_pts1[i][1], 1.0]))
+                second_inliers.append(self.K_inv.dot([self.match_pts2[i][0],
+                                                      self.match_pts2[i][1], 1.0]))
+        R = U.dot(W).dot(Vt)
+        T = U[:, 2]
+
+        self.match_inliers1 = first_inliers
+        self.match_inliers2 = second_inliers
+        self.Rt1 = np.hstack((np.eye(3), np.zeros((3, 1))))
+        self.Rt2 = np.hstack((R, T.reshape(3, 1)))
+
+    def triangulation(self):
+        first_inliers = np.array(self.match_inliers1).reshape(-1, 3)[:, :2]
+        second_inliers = np.array(self.match_inliers2).reshape(-1, 3)[:, :2]
+
+        self.pts4D = cv2.triangulatePoints(self.Rt1, self.Rt2, first_inliers.T, second_inliers.T).T
+        self.pts3D = self.pts4D[:, :3] / np.repeat(self.pts4D[:, 3], 3).reshape(-1, 3)
+
+        self.Ys = self.pts3D[:, 0]
+        self.Zs = self.pts3D[:, 1]
+        self.Xs = self.pts3D[:, 2]
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(self.Xs, self.Ys, self.Zs, c='r', marker='o')
+        ax.set_xlabel('Y')
+        ax.set_ylabel('Z')
+        ax.set_zlabel('X')
+        plt.title('3D point cloud: Use pan axes button below to inspect')
+        plt.show()
 
 K = np.array([[2759.48/4, 0, 1520.69/4, 0, 2764.16/4,
                    1006.81/4, 0, 0, 1]]).reshape(3, 3)
@@ -89,12 +139,15 @@ d = np.array([0.0, 0.0, 0.0, 0.0, 0.0]).reshape(1, 5)
 
 scene = SceneReconstruction3D(K,d)
 BASE = os.getcwd()
-img1_path = os.path.join(BASE, "data","test","001_L.png")
-img2_path = os.path.join(BASE, "data","test","001_R.png")
+img1_path = os.path.join(BASE, "data","test","Left.png")
+img2_path = os.path.join(BASE, "data","test","Right.png")
 scene.loadImgs(img1_path, img2_path)
 
 
 #%%
 scene.rootSIFT()
 scene.matcher()
-print(scene.match_pts1[0], scene.match_pts2[0])
+scene.fundamental_matrix()
+scene.essential_matrix()
+scene._find_camera_matrices_rt()
+scene.triangulation()
