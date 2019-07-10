@@ -147,6 +147,8 @@ scene.loadImgs(img1_path, img2_path)
 #%%
 scene.rootSIFT()
 scene.matcher()
+scene.match_pts1.shape
+scene.match_pts2.shape
 scene.fundamental_matrix()
 scene.essential_matrix()
 scene._find_camera_matrices_rt()
