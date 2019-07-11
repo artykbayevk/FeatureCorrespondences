@@ -147,8 +147,11 @@ scene.loadImgs(img1_path, img2_path)
 #%%
 scene.rootSIFT()
 scene.matcher()
-scene.match_pts1.shape
-scene.match_pts2.shape
+print(scene.match_pts1.shape)
+print(scene.match_pts2.shape)
+
+# for i in range(scene.match_pts1.shape[0]):
+#     print(scene.match_pts1[i], scene.match_pts2[i])
 scene.fundamental_matrix()
 scene.essential_matrix()
 scene._find_camera_matrices_rt()
