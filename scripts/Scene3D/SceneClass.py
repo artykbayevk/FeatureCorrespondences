@@ -4,16 +4,15 @@ import os
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+
 #%%
-
-
 class SceneReconstruction3D:
     def __init__(self, K, d):
         self.K = K
         self.K_inv = np.linalg.inv(K)
         self.d = d
 
-    def loadImgs(self, img1_path, img2_path, scale = 10):
+    def loadImgs(self, img1_path, img2_path, scale = 100):
 
         img1 = cv2.cvtColor(cv2.imread(img1_path), cv2.COLOR_BGR2GRAY)
         width = int(img1.shape[1] * scale / 100)
@@ -191,6 +190,6 @@ scene = SceneReconstruction3D(K,d)
 BASE = os.getcwd()
 img1_path = os.path.join(BASE, "data","test","Left.png")
 img2_path = os.path.join(BASE, "data","test","Right.png")
-scene.loadImgs(img1_path, img2_path, scale=10)
+scene.loadImgs(img1_path, img2_path, scale=100)
 scene.triangulation()
 print(scene.match_pts1)
