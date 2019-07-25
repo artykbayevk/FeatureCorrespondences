@@ -164,6 +164,7 @@ class SceneReconstruction3D:
 
         self.match_pts1 = np.round(pts1)
         self.match_pts2 = np.round(pts2)
+        self.matches = matches
 
     def _find_fundamental_matrix(self):
         self.F, self.Fmask = cv2.findFundamentalMat(self.match_pts1,
