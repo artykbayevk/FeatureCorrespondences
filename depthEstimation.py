@@ -1,27 +1,32 @@
 # %% importing libraries
 import os
-import cv2
 import pandas as pd
 import numpy as np
 from scripts.SceneReconstruction.Scene3D import SceneReconstruction3D
+BASE = os.getcwd()
+img1_path = os.path.join(BASE, "data", "pair", "Left.png")
+img2_path = os.path.join(BASE, "data", "pair", "Right.png")
 
 # %%
 K = np.array([[2759.48 / 4, 0, 1520.69 / 4, 0, 2764.16 / 4,
                1006.81 / 4, 0, 0, 1]]).reshape(3, 3)
 d = np.array([0.0, 0.0, 0.0, 0.0, 0.0]).reshape(1, 5)
 scene = SceneReconstruction3D(K, d)
-
-# %%
-BASE = os.getcwd()
-img1_path = os.path.join(BASE, "data", "pair", "Left.png")
-img2_path = os.path.join(BASE, "data", "pair", "Right.png")
 scene.load_image_pair(img1_path, img2_path)
 
 #%%
 scene.findRootSIFTFeatures()
 scene.matchingRootSIFTFeatures()
-a = scene.matches[10][0]
-b = cv2.DMatch()
+
+#%%
+
+
+#%%
+scene.findRootSIFTFeatures()
+scene.matchingRootSIFTFeatures()
+outImagePath = os.path.join(BASE, "data", "pair", "matches.png")
+scene.drawMathces(outImagePath)
+
 
 # %%
 data_path = os.path.join(BASE, "data", "pair", "matchedPoints.csv")

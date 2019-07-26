@@ -7,6 +7,7 @@ import sys
 import cv2
 import os
 
+cv2.DMatch()
 class SceneReconstruction3D:
 
     def __init__(self,K, dist):
@@ -27,7 +28,7 @@ class SceneReconstruction3D:
             self.img1 = cv2.cvtColor(self.img1, cv2.COLOR_GRAY2BGR)
             self.img2 = cv2.cvtColor(self.img2, cv2.COLOR_GRAY2BGR)
 
-        target_width = 200
+        target_width = 500
         if use_pyr_down and self.img1.shape[1] > target_width:
             while self.img1.shape[1] > 2 * target_width:
                 self.img1 = cv2.pyrDown(self.img1)
@@ -113,7 +114,7 @@ class SceneReconstruction3D:
 
         class RootSIFT:
             def __init__(self):
-                self.extractor = cv2.xfeatures2d.SIFT_create()
+                self.extractor = cv2.xfeatures2d.SIFT_create(100)
 
             def compute(self, image, kps, eps=1e-7):
                 (kps, descs) = self.extractor.compute(image, kps)
@@ -131,12 +132,23 @@ class SceneReconstruction3D:
                 self.pos = pos
 
         def innerRootSIFT(img):
-            sift = cv2.xfeatures2d.SIFT_create()
+            sift = cv2.xfeatures2d.SIFT_create(100)
             (kps, descs) = sift.detectAndCompute(img, None)
 
             rs = RootSIFT()
             (kps, descs) = rs.compute(img, kps)
             pos = [np.array([x.pt[0], x.pt[1]]) for x in kps]
+
+            # cleaning
+            # dict_ = dict()
+            # for i in range(len(pos)):
+            #     key = str(pos[i][0])+":"+str(pos[i][1])
+            #     val = kps[i]
+            #
+            #     dict_[key] = val
+            #
+            # keys = np.float32([np.float32(x.split(':')) for x in dict_.keys()])
+            # vals = [x for x in dict_.values()]
 
             return kps, descs, pos
 
@@ -164,7 +176,7 @@ class SceneReconstruction3D:
 
         self.match_pts1 = np.round(pts1)
         self.match_pts2 = np.round(pts2)
-        self.matches = matches
+        self.matches = good
 
     def _find_fundamental_matrix(self):
         self.F, self.Fmask = cv2.findFundamentalMat(self.match_pts1,
@@ -233,3 +245,7 @@ class SceneReconstruction3D:
                 return False
 
         return True
+
+    def drawMathces(self, path):
+        OutImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,outImg=None)
+        cv2.imwrite(path,OutImage)
