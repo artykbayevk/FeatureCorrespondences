@@ -15,7 +15,7 @@ class SceneReconstruction3D:
         self.K_inv = np.linalg.inv(K)
         self.d = dist
 
-    def load_image_pair(self, img_path1, img_path2, use_pyr_down=True):
+    def load_image_pair(self, img_path1, img_path2, target_width ,use_pyr_down=True):
         self.img1 = cv2.imread(img_path1, cv2.CV_8UC3)
         self.img2 = cv2.imread(img_path2, cv2.CV_8UC3)
 
@@ -28,7 +28,7 @@ class SceneReconstruction3D:
             self.img1 = cv2.cvtColor(self.img1, cv2.COLOR_GRAY2BGR)
             self.img2 = cv2.cvtColor(self.img2, cv2.COLOR_GRAY2BGR)
 
-        target_width = 500
+        target_width = target_width
         if use_pyr_down and self.img1.shape[1] > target_width:
             while self.img1.shape[1] > 2 * target_width:
                 self.img1 = cv2.pyrDown(self.img1)
@@ -110,12 +110,11 @@ class SceneReconstruction3D:
         plt.title('3D point cloud: Use pan axes button below to inspect')
         plt.show()
 
-    def findRootSIFTFeatures(self):
+    def findRootSIFTFeatures(self, n_components):
 
         class RootSIFT:
             def __init__(self):
-                self.extractor = cv2.xfeatures2d.SIFT_create(100)
-
+                self.extractor = cv2.xfeatures2d.SIFT_create(n_components)
             def compute(self, image, kps, eps=1e-7):
                 (kps, descs) = self.extractor.compute(image, kps)
                 if len(kps) == 0:
@@ -132,7 +131,7 @@ class SceneReconstruction3D:
                 self.pos = pos
 
         def innerRootSIFT(img):
-            sift = cv2.xfeatures2d.SIFT_create(100)
+            sift = cv2.xfeatures2d.SIFT_create(n_components)
             (kps, descs) = sift.detectAndCompute(img, None)
 
             rs = RootSIFT()

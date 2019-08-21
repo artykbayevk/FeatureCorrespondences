@@ -12,17 +12,10 @@ K = np.array([[2759.48 / 4, 0, 1520.69 / 4, 0, 2764.16 / 4,
                1006.81 / 4, 0, 0, 1]]).reshape(3, 3)
 d = np.array([0.0, 0.0, 0.0, 0.0, 0.0]).reshape(1, 5)
 scene = SceneReconstruction3D(K, d)
-scene.load_image_pair(img1_path, img2_path)
+scene.load_image_pair(img1_path, img2_path, target_width=400)
 
 #%%
-scene.findRootSIFTFeatures()
-scene.matchingRootSIFTFeatures()
-
-#%%
-
-
-#%%
-scene.findRootSIFTFeatures()
+scene.findRootSIFTFeatures(n_components=600)
 scene.matchingRootSIFTFeatures()
 outImagePath = os.path.join(BASE, "data", "pair", "matches.png")
 scene.drawMathces(outImagePath)
@@ -45,7 +38,7 @@ scene.match_pts1 = matched_pts1
 scene.match_pts2 = matched_pts2
 
 # %%
-scene.findRootSIFTFeatures()
+scene.findRootSIFTFeatures(n_components=600)
 scene.matchingRootSIFTFeatures()
 
 # %%
