@@ -6,8 +6,6 @@ import numpy as np
 import sys
 import cv2
 import os
-
-cv2.DMatch()
 class SceneReconstruction3D:
 
     def __init__(self,K, dist):

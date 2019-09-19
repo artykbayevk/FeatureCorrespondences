@@ -1,0 +1,67 @@
+# Path to PLY file (this will have to be downloaded separately)
+# http://cvlabwww.epfl.ch/~strecha/multiview/denseMVS.html
+# http://cvlab.epfl.ch/~strecha/multiview/denseMVS.html
+feature_evaluation_data/dense/fountain/fountain.ply
+# Number of images
+6
+# Relative paths to images
+feature_evaluation_data/dense/fountain/0005-small.png
+feature_evaluation_data/dense/fountain/0004-small.png
+feature_evaluation_data/dense/fountain/0003-small.png
+feature_evaluation_data/dense/fountain/0002-small.png
+
+
+# The following lines are the internal and external parameters for each camera.
+# In each group of numbers, the first 3 lines are the camera calibration matrix (K) which is a 3x3 matrix, written in row-major order.
+# The next 3 lines encode the camera's rotation and translation as a 3x4 matrix in row-major order.
+# To interpret the camera's rotation/translation, a 3x3 rotation matrix is stored in the first 3 columns of the 3x4 matrix.
+# This rotation matrix rotates a coordinate in the world coordinate system into the camera's coordinate system (i.e. the rotation component of a projection matrix).
+# The translation is stored in the 4th column of the 3x4 matrix, and represents the camera's position in the world coordinate system.
+# As an example, suppose you wanted to map the camera's optical axis [0, 0, 1]' to a ray in the world coordinate system.
+# The ray's origin would be the same as the camera's translation, and the ray's direction would be the camera's rotation matrix transposed.
+919.8266666666666 0.0 506.89666666666665
+0.0 921.8365624999999 335.7672021484375
+0 0 1 
+0.962742 -0.270399 0.00344709 -14.1604 
+-0.0160548 -0.0444283 0.998884 -3.32084 
+-0.269944 -0.961723 -0.0471142 0.0862032 
+
+919.8266666666666 0.0 506.89666666666665
+0.0 921.8365624999999 335.7672021484375
+0 0 1 
+0.890856 -0.454283 -0.00158434 -12.404 
+-0.0211638 -0.0449857 0.998763 -3.81315 
+-0.453793 -0.889721 -0.0496901 0.110559 
+
+919.8266666666666 0.0 506.89666666666665
+0.0 921.8365624999999 335.7672021484375
+0 0 1 
+0.795163 -0.606377 -0.00477103 -10.8142 
+-0.050195 -0.0736593 0.996019 -4.53704 
+-0.604314 -0.791759 -0.0890082 0.122293 
+
+919.8266666666666 0.0 506.89666666666665
+0.0 921.8365624999999 335.7672021484375
+0 0 1 
+0.666779 -0.74495 0.021334 -9.46627 
+-0.0831384 -0.0459057 0.99548 -5.58174 
+-0.740603 -0.665539 -0.0925429 0.147736 
+
+
+feature_evaluation_data/dense/fountain/0001-small.png
+919.8266666666666 0.0 506.89666666666665
+0.0 921.8365624999999 335.7672021484375
+0 0 1 
+0.582226 -0.813027 -0.000148752 -8.31326 
+-0.0983866 -0.0706383 0.992638 -6.3181 
+-0.807052 -0.577925 -0.121118 0.16107 
+
+
+feature_evaluation_data/dense/fountain/0000-small.png
+919.8266666666666 0.0 506.89666666666665
+0.0 921.8365624999999 335.7672021484375
+0 0 1 
+0.450927 -0.892535 0.00679989 -7.28137 
+-0.0945642 -0.0401974 0.994707 -7.57667 
+-0.887537 -0.449183 -0.102528 0.204446 
+
