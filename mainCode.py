@@ -40,3 +40,4 @@ estimator.matchingRootSIFTFeatures()
 estimator.drawMathces(os.path.join(BASE, "data", "dense", "matchesOpenCV.png"))
 
 print("Number of SIFT features: {}".format(len(estimator.feature_1.kps)))
+from scipy.spatial.distance import directed_hausdorff
