@@ -7,21 +7,30 @@ import pandas as pd
 from scripts.SceneReconstruction.Scene3D import SceneReconstruction3D
 
 BASE = os.getcwd()
-img1_path = os.path.join(BASE, "data", "pair", "Left.png")
-img2_path = os.path.join(BASE, "data", "pair", "Right.png")
+img1_path = os.path.join(BASE, "data", "dense", "0000-small-left.png")
+img2_path = os.path.join(BASE, "data", "dense", "0001-small-right.png")
 
-K = np.array([[2759.48 / 4, 0, 1520.69 / 4, 0, 2764.16 / 4,
-               1006.81 / 4, 0, 0, 1]]).reshape(3, 3)
+K = np.array([[919.8266666666666, 0, 506.89666666666665, 0, 921.8365624999999,
+               335.7672021484375, 0, 0, 1]]).reshape(3, 3)
 d = np.array([0.0, 0.0, 0.0, 0.0, 0.0]).reshape(1, 5)
 scene = SceneReconstruction3D(K, d)
-scene.load_image_pair(img1_path, img2_path, target_width=800)
+scene.load_image_pair(img1_path, img2_path)
 
 # %%
-scene.findRootSIFTFeatures(n_components=600)
+scene.findRootSIFTFeatures()
 scene.matchingRootSIFTFeatures()
-outImagePath = os.path.join(BASE, "data", "pair", "matchesNew.png")
+outImagePath = os.path.join(BASE, "data", "dense", "matchesNew.png")
 scene.drawMathces(outImagePath)
+scene._find_fundamental_matrix()
+scene._find_essential_matrix()
 
+
+#%%
+scene.F
+
+
+#%%
+scene.E
 # %%
 data_path = os.path.join(BASE, "data", "pair", "matchedPoints.csv")
 matchedPointsDF = pd.read_csv(data_path, sep=",", header=None)
@@ -39,7 +48,7 @@ scene.match_pts1 = matched_pts1
 scene.match_pts2 = matched_pts2
 
 # %%
-scene.findRootSIFTFeatures(n_components=600)
+scene.findRootSIFTFeatures()
 scene.matchingRootSIFTFeatures()
 
 # %%
