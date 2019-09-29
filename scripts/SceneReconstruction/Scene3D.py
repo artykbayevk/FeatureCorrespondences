@@ -21,8 +21,8 @@ class SceneReconstruction3D:
         self.img2 = cv2.undistort(self.img2, self.K, self.d)
 
         base = "/".join(img_path1.split("\\")[:-1])
-        cv2.imwrite(os.path.join(base, "left_loaded.png"), self.img1)
-        cv2.imwrite(os.path.join(base, "right_loaded.png"), self.img2)
+        # cv2.imwrite(os.path.join(base, "left_loaded.png"), self.img1)
+        # cv2.imwrite(os.path.join(base, "right_loaded.png"), self.img2)
 
     def plot_point_cloud(self):
         self._find_fundamental_matrix()
@@ -35,7 +35,7 @@ class SceneReconstruction3D:
                                       second_inliers.T).T
 
         pts3D = pts4D[:, :3] / np.repeat(pts4D[:, 3], 3).reshape(-1, 3)
-
+        #
         Ys = pts3D[:, 0]
         Zs = pts3D[:, 1]
         Xs = pts3D[:, 2]

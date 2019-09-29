@@ -16,6 +16,22 @@ d = np.array([0.0, 0.0, 0.0, 0.0, 0.0]).reshape(1, 5)
 scene = SceneReconstruction3D(K, d)
 scene.load_image_pair(img1_path, img2_path)
 
+
+#%%
+scene.findRootSIFTFeatures()
+scene.matchingRootSIFTFeatures()
+scene._find_fundamental_matrix()
+scene._find_essential_matrix()
+scene._find_camera_matrices_rt()
+scene.plot_point_cloud()
+
+
+
+
+'''
+#%%
+scene.match_inliers1
+
 # %%
 scene.findRootSIFTFeatures()
 scene.matchingRootSIFTFeatures()
@@ -78,3 +94,6 @@ for i in range(df1.shape[0]):
         if (np.array_equal(np.float32(df1[i]), np.float32(df2[j])) == True):
             cnt += 1
 print(cnt)
+
+'''
+print("End")

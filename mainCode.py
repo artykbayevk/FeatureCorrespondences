@@ -1,16 +1,15 @@
-# %% importing libraries
+#%%
 import os
-
 import numpy as np
-
 from scripts.Triangulation.Depth import Triangulation
+from scipy.spatial.distance import directed_hausdorff
 
-# %% intrinsic and extrinsic parameters of camera
-fc_left = np.array([919.8266666666666, 921.8365624999999])
-cc_left = np.array([506.89666666666665, 335.7672021484375])
 
-fc_right = np.array([919.8266666666666, 921.8365624999999])
-cc_right = np.array([506.89666666666665, 335.7672021484375])
+K = np.array([
+    [919.8266666666666,0.0, 506.89666666666665],
+    [0.0,921.8365624999999,335.7672021484375],
+    [0.0,0.0,1.0 ]
+])
 
 R1 = np.array([
     [0.450927, -0.0945642, -0.887537],
@@ -25,19 +24,36 @@ R2 = np.array([
 ])
 T2 = np.array([-8.31326, -6.3181, 0.16107])
 
-R = R1 - R2
-T = T1 - T2
 
-# %%
+
+#%%
+
 BASE = os.getcwd()
 img1_path = os.path.join(BASE, "data", "dense", "0000-small-left.png")
 img2_path = os.path.join(BASE, "data", "dense", "0001-small-right.png")
 
-estimator = Triangulation(fc_left, cc_left, fc_right, cc_right, R, T)
-estimator.load_imgs(img1_path, img2_path)
-estimator.findRootSIFTFeatures(200)
-estimator.matchingRootSIFTFeatures()
-estimator.drawMathces(os.path.join(BASE, "data", "dense", "matchesOpenCV.png"))
 
-print("Number of SIFT features: {}".format(len(estimator.feature_1.kps)))
-from scipy.spatial.distance import directed_hausdorff
+### OPENCV METHOD
+opencv = Triangulation(K = K, R1=R1, R2=R2, T1 = T1, T2 = T2)
+opencv.load_imgs(img1_path, img2_path)
+opencv.findRootSIFTFeatures(n_components=400)
+opencv.matchingRootSIFTFeatures()
+opencv.findRTmatrices()
+opencv.point_cloud(plot = True)
+true = opencv.pts3D
+
+### JULIA METHOD
+julia = Triangulation(K = K, R1=R1, R2=R2, T1 = T1, T2 = T2)
+julia.load_imgs(img1_path, img2_path)
+julia.findRootSIFTFeatures()
+
+path = "/Users/kamalsdu/Documents/Research/FeatureCorrespondences/data/dense/matchedPoints.csv"
+julia.matchingRootSIFTFeatures(path, True)
+julia.findRTmatrices()
+julia.point_cloud(plot = True)
+pred = julia.pts3D
+
+
+#%%
+distance = directed_hausdorff(pred, true)[0]
+print(distance)
