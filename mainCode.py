@@ -3,6 +3,7 @@ import os
 import numpy as np
 from scripts.Triangulation.Depth import Triangulation
 from scipy.spatial.distance import directed_hausdorff
+from scripts.Triangulation.hausdorff_distance import Hausdorff
 from scipy.spatial import distance
 
 K = np.array([
@@ -36,7 +37,7 @@ img2_path = os.path.join(BASE, "data", "dense", "0001-small-right.png")
 ### OPENCV METHOD
 opencv = Triangulation(K = K, R1=R1, R2=R2, T1 = T1, T2 = T2)
 opencv.load_imgs(img1_path, img2_path)
-opencv.findRootSIFTFeatures(n_components=400)
+opencv.findRootSIFTFeatures()
 opencv.matchingRootSIFTFeatures()
 opencv.findRTmatrices()
 opencv.point_cloud(plot = False,title="OpenCV")
@@ -56,23 +57,13 @@ pred = julia.pts3D
 
 
 #%%
-# distance = directed_hausdorff(pred, true)[0]
-# print(distance)
+distance = directed_hausdorff(true, pred)[0]
+print(distance)
 
 #%%
-def hausdorrf_distance(u,v,type=None):
-    euc = distance.cdist(u,v)
-    minimums = euc.min(axis=1)
-    avg = np.mean(minimums)
-    max = np.max(minimums)
-    if type == "max":
-        return np.max(minimums)
-    elif type == "avg":
-        return np.mean(minimums)
-
-
-# d = hausdorrf_distance(pred, true)
 u = np.array([(1.0, 0.0),(0.0, 1.0),(-1.0, 0.0),(0.0, -1.0)])
 v = np.array([(2.0, 0.0),(0.0, 2.0),(-2.0, 0.0),(0.0, -4.0)])
 
-hausdorrf_distance(u,v)
+metrics = Hausdorff(u = pred, v = true)
+dist = metrics.distance(d_type="euc", criteria="max")
+print(dist)
