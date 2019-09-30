@@ -114,6 +114,10 @@ class Triangulation:
         R = np.dot(self.R2,self.R1)
         T = - np.dot(self.R2, self.R1).dot(self.T1) - self.T2
 
+        # R = np.multiply(self.R2, self.R1.T)
+        # T = -np.dot(np.multiply(self.R2, self.R1.T), self.T1) - self.T2
+        stop = 1
+
         for i in range(self.match_pts1.shape[0]):
             norm1 = self.K_inv.dot([self.match_pts1[i][0],self.match_pts1[i][1], 1.0])
             norm2 = self.K_inv.dot([self.match_pts2[i][0],self.match_pts2[i][1], 1.0])
@@ -137,7 +141,6 @@ class Triangulation:
         Zs = pts3D[:, 1]
         Xs = pts3D[:, 2]
 
-        stop = 1
         if plot:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')

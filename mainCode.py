@@ -47,7 +47,8 @@ julia = Triangulation(K = K, R1=R1, R2=R2, T1 = T1, T2 = T2)
 julia.load_imgs(img1_path, img2_path)
 julia.findRootSIFTFeatures()
 
-path = "/Users/kamalsdu/Documents/Research/FeatureCorrespondences/data/dense/matchedPoints.csv"
+# path = "/Users/kamalsdu/Documents/Research/FeatureCorrespondences/data/dense/matchedPoints.csv"
+path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\matchedPoints.csv"
 julia.matchingRootSIFTFeatures(path, True)
 julia.findRTmatrices()
 julia.point_cloud(plot = True)
