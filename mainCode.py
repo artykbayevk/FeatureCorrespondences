@@ -39,7 +39,7 @@ opencv.load_imgs(img1_path, img2_path)
 opencv.findRootSIFTFeatures(n_components=400)
 opencv.matchingRootSIFTFeatures()
 opencv.findRTmatrices()
-opencv.point_cloud(plot = False)
+opencv.point_cloud(plot = False,title="OpenCV")
 true = opencv.pts3D
 
 ### JULIA METHOD
@@ -51,7 +51,7 @@ julia.findRootSIFTFeatures()
 path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\matchedPoints.csv"
 julia.matchingRootSIFTFeatures(path, True)
 julia.findRTmatrices()
-julia.point_cloud(plot = False)
+julia.point_cloud(plot = False, title="Our method")
 pred = julia.pts3D
 
 
