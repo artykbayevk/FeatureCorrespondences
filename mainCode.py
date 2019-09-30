@@ -39,7 +39,7 @@ opencv.load_imgs(img1_path, img2_path)
 opencv.findRootSIFTFeatures(n_components=400)
 opencv.matchingRootSIFTFeatures()
 opencv.findRTmatrices()
-opencv.point_cloud(plot = True)
+opencv.point_cloud(plot = True, title="opencv")
 true = opencv.pts3D
 
 ### JULIA METHOD
@@ -47,11 +47,11 @@ julia = Triangulation(K = K, R1=R1, R2=R2, T1 = T1, T2 = T2)
 julia.load_imgs(img1_path, img2_path)
 julia.findRootSIFTFeatures()
 
-# path = "/Users/kamalsdu/Documents/Research/FeatureCorrespondences/data/dense/matchedPoints.csv"
-path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\matchedPoints.csv"
+path = "/Users/kamalsdu/Documents/Research/FeatureCorrespondences/data/dense/matchedPoints.csv"
+# path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\matchedPoints.csv"
 julia.matchingRootSIFTFeatures(path, True)
 julia.findRTmatrices()
-julia.point_cloud(plot = True)
+julia.point_cloud(plot = True, title="our method")
 pred = julia.pts3D
 
 
