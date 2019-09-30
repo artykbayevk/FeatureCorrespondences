@@ -115,7 +115,7 @@ class Triangulation:
         T = - np.dot(self.R2, self.R1).dot(self.T1) - self.T2
 
         # R = np.multiply(self.R2, self.R1.T)
-        # T = -np.dot(np.multiply(self.R2, self.R1.T), self.T1) - self.T2
+        # T = -np.dot(np.multiply(self.R2, self.R1.T), self.T1) + self.T2
         stop = 1
 
         for i in range(self.match_pts1.shape[0]):
@@ -131,7 +131,7 @@ class Triangulation:
         self.Rt1 = np.hstack((np.eye(3), np.zeros((3, 1))))
         self.Rt2 = np.hstack((R, T.reshape(3, 1)))
 
-    def point_cloud(self, plot = True):
+    def point_cloud(self, title, plot = True):
         first_inliers = np.array(self.norm_1).reshape(-1, 3)[:, :2]
         second_inliers = np.array(self.norm_2).reshape(-1, 3)[:, :2]
         pts4D = cv2.triangulatePoints(self.Rt1, self.Rt2, first_inliers.T,
@@ -148,7 +148,7 @@ class Triangulation:
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
             ax.set_zlabel('Z')
-            plt.title('3D point cloud: Use pan axes button below to inspect')
+            plt.title('3D point cloud: {}'.format(title))
             plt.show()
 
         self.pts3D = pts3D
