@@ -3,7 +3,7 @@ import os
 import numpy as np
 from scripts.Triangulation.Depth import Triangulation
 from scipy.spatial.distance import directed_hausdorff
-
+from scipy.spatial import distance
 
 K = np.array([
     [919.8266666666666,0.0, 506.89666666666665],
@@ -39,7 +39,7 @@ opencv.load_imgs(img1_path, img2_path)
 opencv.findRootSIFTFeatures(n_components=400)
 opencv.matchingRootSIFTFeatures()
 opencv.findRTmatrices()
-opencv.point_cloud(plot = True)
+opencv.point_cloud(plot = False)
 true = opencv.pts3D
 
 ### JULIA METHOD
@@ -51,10 +51,28 @@ julia.findRootSIFTFeatures()
 path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\matchedPoints.csv"
 julia.matchingRootSIFTFeatures(path, True)
 julia.findRTmatrices()
-julia.point_cloud(plot = True)
+julia.point_cloud(plot = False)
 pred = julia.pts3D
 
 
 #%%
-distance = directed_hausdorff(pred, true)[0]
-print(distance)
+# distance = directed_hausdorff(pred, true)[0]
+# print(distance)
+
+#%%
+def hausdorrf_distance(u,v,type=None):
+    euc = distance.cdist(u,v)
+    minimums = euc.min(axis=1)
+    avg = np.mean(minimums)
+    max = np.max(minimums)
+    if type == "max":
+        return np.max(minimums)
+    elif type == "avg":
+        return np.mean(minimums)
+
+
+# d = hausdorrf_distance(pred, true)
+u = np.array([(1.0, 0.0),(0.0, 1.0),(-1.0, 0.0),(0.0, -1.0)])
+v = np.array([(2.0, 0.0),(0.0, 2.0),(-2.0, 0.0),(0.0, -4.0)])
+
+hausdorrf_distance(u,v)
