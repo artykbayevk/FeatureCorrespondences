@@ -1,5 +1,6 @@
 #%%
 import os
+import glob
 import numpy as np
 from scripts.Triangulation.Depth import Triangulation
 from scipy.spatial.distance import directed_hausdorff
@@ -37,33 +38,27 @@ img2_path = os.path.join(BASE, "data", "dense", "0001-small-right.png")
 ### OPENCV METHOD
 opencv = Triangulation(K = K, R1=R1, R2=R2, T1 = T1, T2 = T2)
 opencv.load_imgs(img1_path, img2_path)
-opencv.findRootSIFTFeatures()
+opencv.findRootSIFTFeatures(n_components=550)
 opencv.matchingRootSIFTFeatures()
 opencv.findRTmatrices()
 opencv.point_cloud(plot = False,title="OpenCV")
 true = opencv.pts3D
 
 ### JULIA METHOD
-julia = Triangulation(K = K, R1=R1, R2=R2, T1 = T1, T2 = T2)
-julia.load_imgs(img1_path, img2_path)
-julia.findRootSIFTFeatures()
+path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\experiment"
 
-# path = "/Users/kamalsdu/Documents/Research/FeatureCorrespondences/data/dense/matchedPoints.csv"
-path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\matchedPoints.csv"
-julia.matchingRootSIFTFeatures(path, True)
-julia.findRTmatrices()
-julia.point_cloud(plot = False, title="Our method")
-pred = julia.pts3D
-
-
-#%%
-distance = directed_hausdorff(true, pred)[0]
-print(distance)
-
+for f_i in range(1,11):
+    julia = Triangulation(K=K, R1=R1, R2=R2, T1=T1, T2=T2)
+    julia.load_imgs(img1_path, img2_path)
+    julia.findRootSIFTFeatures(n_components=550)
+    f_path = os.path.join(path,'matchedPoints_'+str(f_i)+'.csv')
+    julia.matchingRootSIFTFeatures(f_path, True)
+    julia.findRTmatrices()
+    julia.point_cloud(plot = False, title="Our method")
+    pred = julia.pts3D
+    metrics = Hausdorff(u=pred, v=true)
+    dist = metrics.distance(d_type="cheb", criteria="avg")
+    print("dist between opencv and opt. sol #{}: {}".format(f_i, dist))
 #%%
 u = np.array([(1.0, 0.0),(0.0, 1.0),(-1.0, 0.0),(0.0, -1.0)])
 v = np.array([(2.0, 0.0),(0.0, 2.0),(-2.0, 0.0),(0.0, -4.0)])
-
-metrics = Hausdorff(u = pred, v = true)
-dist = metrics.distance(d_type="euc", criteria="max")
-print(dist)
