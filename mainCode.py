@@ -38,7 +38,7 @@ opencv.load_imgs(img1_path, img2_path)
 opencv.findRootSIFTFeatures(n_components=550)
 opencv.matchingRootSIFTFeatures()
 opencv.findRTmatrices()
-opencv.point_cloud(plot=False, title="OpenCV")
+opencv.point_cloud(plot=True, title="OpenCV")
 true = opencv.pts3D
 
 ### JULIA METHOD
@@ -52,7 +52,7 @@ for f_i in range(1, 11):
     f_path = os.path.join(path, 'matchedPoints_' + str(f_i) + '.csv')
     julia.matchingRootSIFTFeatures(f_path, True)
     julia.findRTmatrices()
-    julia.point_cloud(plot=False, title="Our method")
+    julia.point_cloud(plot=True, title="Our method #{}".format(f_i))
     pred = julia.pts3D
     metrics = Hausdorff(u=pred, v=true)
     dist_cheb_avg = metrics.distance(d_type="cheb", criteria="avg")
