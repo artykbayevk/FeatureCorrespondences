@@ -98,7 +98,7 @@ class Triangulation:
             self.match_pts1 = np.round(pts1)
             self.match_pts2 = np.round(pts2)
             self.matches = good
-        print("There are {} matches".format(self.match_pts1.shape[0]))
+        # print("There are {} matches".format(self.match_pts1.shape[0]))
 
     def drawMathces(self, path):
         OutImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,outImg=None)

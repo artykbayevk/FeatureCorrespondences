@@ -46,7 +46,7 @@ true = opencv.pts3D
 
 ### JULIA METHOD
 path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\experiment"
-
+print("# Optimal solution \t\t Distance")
 for f_i in range(1,11):
     julia = Triangulation(K=K, R1=R1, R2=R2, T1=T1, T2=T2)
     julia.load_imgs(img1_path, img2_path)
@@ -57,8 +57,20 @@ for f_i in range(1,11):
     julia.point_cloud(plot = False, title="Our method")
     pred = julia.pts3D
     metrics = Hausdorff(u=pred, v=true)
-    dist = metrics.distance(d_type="cheb", criteria="avg")
-    print("dist between opencv and opt. sol #{}: {}".format(f_i, dist))
+    dist_cheb_avg = metrics.distance(d_type="cheb", criteria="avg")
+    dist_cheb_max = metrics.distance(d_type="cheb", criteria="max")
+    dist_man_avg = metrics.distance(d_type="man", criteria="avg")
+    dist_man_max = metrics.distance(d_type="man", criteria="max")
+    dist_euc_avg = metrics.distance(d_type="euc", criteria="avg")
+    dist_euc_max = metrics.distance(d_type="euc", criteria="max")
+    print("\t\t#{}: \t\t {:5f} {:5f} {:5f} {:5f} {:5f} {:5f}".format(f_i, dist_cheb_avg,dist_cheb_max,dist_man_avg,dist_man_max,dist_euc_avg,dist_euc_max))
 #%%
 u = np.array([(1.0, 0.0),(0.0, 1.0),(-1.0, 0.0),(0.0, -1.0)])
 v = np.array([(2.0, 0.0),(0.0, 2.0),(-2.0, 0.0),(0.0, -4.0)])
+
+
+#TODO create dataset
+
+#TODO rewrite DL model with heuristic method
+
+#TODO show final results
