@@ -1,12 +1,11 @@
 # %%
-import os
-import glob
 import json
+import os
+
 import numpy as np
+
 from scripts.Triangulation.Depth import Triangulation
-from scipy.spatial.distance import directed_hausdorff
 from scripts.Triangulation.hausdorff_distance import Hausdorff
-from scipy.spatial import distance
 
 K = np.array([
     [919.8266666666666, 0.0, 506.89666666666665],
@@ -30,7 +29,7 @@ T2 = np.array([-8.31326, -6.3181, 0.16107])
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 n_components = int(CONFIG["SIFTFeatures"])
-plot = True if CONFIG['plot']=='true' else False
+plot = True if CONFIG['plot'] == 'true' else False
 
 BASE = os.getcwd()
 img1_path = os.path.join(BASE, "data", "dense", "0000-small-left.png")
