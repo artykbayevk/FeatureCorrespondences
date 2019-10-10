@@ -1,6 +1,7 @@
 # %%
 import os
 import glob
+import json
 import numpy as np
 from scripts.Triangulation.Depth import Triangulation
 from scipy.spatial.distance import directed_hausdorff
@@ -26,7 +27,10 @@ R2 = np.array([
 ])
 T2 = np.array([-8.31326, -6.3181, 0.16107])
 
-# %%
+with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
+    CONFIG = json.load(f)["config"]
+n_components = int(CONFIG["SIFTFeatures"])
+plot = True if CONFIG['plot']=='true' else False
 
 BASE = os.getcwd()
 img1_path = os.path.join(BASE, "data", "dense", "0000-small-left.png")
@@ -35,24 +39,24 @@ img2_path = os.path.join(BASE, "data", "dense", "0001-small-right.png")
 ### OPENCV METHOD
 opencv = Triangulation(K=K, R1=R1, R2=R2, T1=T1, T2=T2)
 opencv.load_imgs(img1_path, img2_path)
-opencv.findRootSIFTFeatures(n_components=550)
+opencv.findRootSIFTFeatures(n_components=n_components)
 opencv.matchingRootSIFTFeatures()
 opencv.findRTmatrices()
-opencv.point_cloud(plot=True, title="OpenCV")
+opencv.point_cloud(plot=plot, title="OpenCV")
 true = opencv.pts3D
 
 ### JULIA METHOD
-path = '/Users/artkvk/Documents/RA/FeatureCorrespondences/data/dense/experiment'
-# path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\experiment"
-print("# Optimal solution \t\t Distance")
+# path = '/Users/artkvk/Documents/RA/FeatureCorrespondences/data/dense/experiment'
+path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\experiment"
+print("# Optimal solution \t Cheb_avg Cheb_max Manh_avg Mang_max Eucl_avg Eucl_max")
 for f_i in range(1, 11):
     julia = Triangulation(K=K, R1=R1, R2=R2, T1=T1, T2=T2)
     julia.load_imgs(img1_path, img2_path)
-    julia.findRootSIFTFeatures(n_components=550)
+    julia.findRootSIFTFeatures(n_components=n_components)
     f_path = os.path.join(path, 'matchedPoints_' + str(f_i) + '.csv')
     julia.matchingRootSIFTFeatures(f_path, True)
     julia.findRTmatrices()
-    julia.point_cloud(plot=True, title="Our method #{}".format(f_i))
+    julia.point_cloud(plot=plot, title="Our method #{}".format(f_i))
     pred = julia.pts3D
     metrics = Hausdorff(u=pred, v=true)
     dist_cheb_avg = metrics.distance(d_type="cheb", criteria="avg")
