@@ -5,7 +5,7 @@ import os
 import numpy as np
 
 from scripts.Triangulation.Depth import Triangulation
-from scripts.Triangulation.hausdorff_distance import Hausdorff
+from scripts.Triangulation.HausdorffDist import Hausdorff
 
 K = np.array([
     [919.8266666666666, 0.0, 506.89666666666665],
