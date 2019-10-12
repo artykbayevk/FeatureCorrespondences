@@ -245,10 +245,10 @@ def get_dataset():
 
 # main()
 
-get_dataset()
+# get_dataset()
 def reading_dataset():
     dataset = np.load('data/dataset.npy')
-    print(dataset[100000])
+    # print(dataset[100000])
 
 
 def temp():
