@@ -1,3 +1,4 @@
+
 #%%
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,8 +15,6 @@ center_q_x = 0.
 center_q_y = 0.
 
 ell = np.linspace(0, 2 * pi, 25)
-
-
 
 #%%
 def figure_1():
@@ -221,7 +220,7 @@ def main():
         samples = np.append(samples, item_sample, axis=0)
 
         origin_angle += val
-    np.save('data/dataset.npy', samples)
+    np.save(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\dataset.npy', samples)
 
 
 def get_dataset():
@@ -243,7 +242,7 @@ def get_dataset():
 
     return samples
 
-# main()
+main()
 
 # get_dataset()
 def reading_dataset():
