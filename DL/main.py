@@ -1,8 +1,4 @@
-import os, sys
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-import warnings
 
 import torch
 import torch.optim as optim
@@ -11,9 +7,7 @@ from DL.dataLoader import train_loader, test_loader, val_loader, input_size
 from DL.model import DLModel
 from DL.inference import train, test
 
-# warnings.filterwarnings("ignore")
 plt.ion()
-
 
 #%% main function
 n_epochs = 100
