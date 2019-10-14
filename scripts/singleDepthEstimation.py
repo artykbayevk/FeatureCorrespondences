@@ -26,18 +26,17 @@ R2 = np.array([
 ])
 T2 = np.array([-8.31326, -6.3181, 0.16107])
 
-with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
+with open("/Users/artkvk/Documents/RA/FeatureCorrespondences/config/config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 n_components = int(CONFIG["SIFTFeatures"])
 plot = True if CONFIG['plot'] == 'true' else False
 
 BASE = os.getcwd()
-img1_path = os.path.join(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\0000-small-left.png')
-img2_path = os.path.join(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\0001-small-right.png')
+img1_path = os.path.join('/Users/artkvk/Documents/RA/FeatureCorrespondences/data/dense/0000-small-left.png')
+img2_path = os.path.join('/Users/artkvk/Documents/RA/FeatureCorrespondences/data/dense/0001-small-right.png')
 
 
-
-### OPENCV METHOD
+#  OPEN-CV METHOD
 opencv = Triangulation(K=K, R1=R1, R2=R2, T1=T1, T2=T2)
 opencv.load_imgs(img1_path, img2_path)
 opencv.findRootSIFTFeatures(n_components=n_components)
@@ -46,9 +45,9 @@ opencv.findRTmatrices()
 opencv.point_cloud(plot=plot, title="OpenCV")
 true = opencv.pts3D
 
-### JULIA METHOD
+#  JULIA METHOD
 # path = '/Users/artkvk/Documents/RA/FeatureCorrespondences/data/dense/experiment'
-path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\experiment"
+path = "/Users/artkvk/Documents/RA/FeatureCorrespondences/data/dense/experiment"
 print("# Optimal solution \t Cheb_avg Cheb_max Manh_avg Mang_max Eucl_avg Eucl_max")
 for f_i in range(1, 7):
     julia = Triangulation(K=K, R1=R1, R2=R2, T1=T1, T2=T2)

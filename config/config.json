@@ -1,6 +1,6 @@
 {
   "config":{
     "plot": "true",
-    "SIFTFeatures": 100
+    "SIFTFeatures": 70
   }
 }

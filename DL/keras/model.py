@@ -38,6 +38,7 @@ def train_val(train_data, val_data, n_epochs, lr, batch_size, size_of_sample, ch
                              validation_data=(x_val, y_val), )
     model.save(checkpoint)
 
+
 def test(test_data, checkpoint, size_of_sample):
     x_ts, y_ts = test_data
     model = dl_model(input_size=size_of_sample)
@@ -48,6 +49,11 @@ def test(test_data, checkpoint, size_of_sample):
     acc, f1 = accuracy_score(y_true=y_ts, y_pred=pred), f1_score(y_true=y_ts, y_pred=pred)
     print("Test dataset: acc:{:5f} and f1:{:5f}".format(acc, f1))
 
-def testOnePair(folder, checkpoint, size_of_sample):
-    list_of_files = glob.glob(os.path.join(folder, "*.csv"))
+def predict(inference_data, checkpoint, size_of_sample):
+    x_inf = inference_data
+    model = dl_model(input_size=size_of_sample)
+    model.load_weights(checkpoint)
+    model.summary()
+
+    pred = model.predict_classes(x_inf)
     stop = 1

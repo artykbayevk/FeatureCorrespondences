@@ -1,4 +1,7 @@
+import os
+import glob
 import numpy as np
+import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 
@@ -30,5 +33,14 @@ def get_divided_data(path, ts_size, val_size, dummy_mult):
     x_ts = main_scaler.transform(x_ts)
     x_val = main_scaler.transform(x_val)
 
-    return (x_tr, y_tr), (x_val, y_val), (x_ts, y_ts), size_of_sample
+    return (x_tr, y_tr), (x_val, y_val), (x_ts, y_ts), size_of_sample, main_scaler
 
+
+def get_pair_features(folder, size_of_sample):
+    list_of_files = glob.glob(os.path.join(folder, "*.csv"))
+    dataset = np.zeros((len(list_of_files), size_of_sample))
+    for idx, item in enumerate(list_of_files):
+        dataset[idx] = pd.read_csv(item, header=None, delimiter=',').values.flatten()
+    # dataset = StandardScaler().fit_transform(dataset)
+    dataset = StandardScaler().fit_transform(X=dataset)
+    return dataset
