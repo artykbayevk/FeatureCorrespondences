@@ -1,9 +1,10 @@
+import os
+import glob
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.models import load_model
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras import optimizers
-from tensorflow import keras
+from sklearn.metrics import f1_score, accuracy_score
 
 def dl_model(input_size):
     model = Sequential()
@@ -25,7 +26,7 @@ def dl_model(input_size):
     return model
 
 
-def train_val(train_data, val_data, n_epochs, lr, batch_size, size_of_sample):
+def train_val(train_data, val_data, n_epochs, lr, batch_size, size_of_sample, checkpoint):
     model = dl_model(size_of_sample)
     optim = optimizers.Adam(learning_rate=lr, beta_1=0.9, beta_2=0.999, amsgrad=False)
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', 'mae'])
@@ -33,4 +34,20 @@ def train_val(train_data, val_data, n_epochs, lr, batch_size, size_of_sample):
     x_tr, y_tr = train_data
     x_val, y_val = val_data
 
-    model_output = model.fit(x_tr, y_tr, epochs=n_epochs, batch_size=batch_size, verbose=1, validation_data=(x_val, y_val), )
+    model_output = model.fit(x_tr, y_tr, epochs=n_epochs, batch_size=batch_size, verbose=1,
+                             validation_data=(x_val, y_val), )
+    model.save(checkpoint)
+
+def test(test_data, checkpoint, size_of_sample):
+    x_ts, y_ts = test_data
+    model = dl_model(input_size=size_of_sample)
+    model.load_weights(checkpoint)
+    model.summary()
+
+    pred = model.predict_classes(x_ts).reshape(-1)
+    acc, f1 = accuracy_score(y_true=y_ts, y_pred=pred), f1_score(y_true=y_ts, y_pred=pred)
+    print("Test dataset: acc:{:5f} and f1:{:5f}".format(acc, f1))
+
+def testOnePair(folder, checkpoint, size_of_sample):
+    list_of_files = glob.glob(os.path.join(folder, "*.csv"))
+    stop = 1

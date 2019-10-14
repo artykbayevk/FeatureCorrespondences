@@ -1,5 +1,6 @@
+import torch
 import torch.nn as nn
-
+from sklearn.preprocessing import StandardScaler
 
 class DLModel(nn.Module):
     def __init__(self, input_size):
@@ -22,7 +23,6 @@ class DLModel(nn.Module):
         )
 
     def forward(self, x):
-        # x = F.normalize(x.float(), p=2, dim=1)
         x = x.float()
         x = self.linear(x)
         return x

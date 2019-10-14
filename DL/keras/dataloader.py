@@ -1,11 +1,10 @@
 import numpy as np
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 
 
 def transform_samples(dataset, mult, size_of_sample):
     data = np.zeros((dataset.shape[0], size_of_sample+1))
-    stop =1
     for idx, sample in enumerate(dataset):
         label = sample[-1:]
         features = sample[:-1]
@@ -32,3 +31,4 @@ def get_divided_data(path, ts_size, val_size, dummy_mult):
     x_val = main_scaler.transform(x_val)
 
     return (x_tr, y_tr), (x_val, y_val), (x_ts, y_ts), size_of_sample
+
