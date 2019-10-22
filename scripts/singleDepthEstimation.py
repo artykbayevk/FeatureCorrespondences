@@ -35,7 +35,6 @@ BASE = os.getcwd()
 img1_path = os.path.join('/Users/artkvk/Documents/RA/FeatureCorrespondences/data/dense/0000-small-left.png')
 img2_path = os.path.join('/Users/artkvk/Documents/RA/FeatureCorrespondences/data/dense/0001-small-right.png')
 
-
 #  OPEN-CV METHOD
 opencv = Triangulation(K=K, R1=R1, R2=R2, T1=T1, T2=T2)
 opencv.load_imgs(img1_path, img2_path)

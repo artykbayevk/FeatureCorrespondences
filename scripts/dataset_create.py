@@ -131,6 +131,7 @@ def draw_solution(solutions):
 
         pairX2 = []
         pairY2 = []
+
         for p_, q_ in zip(p, q):
             x = np.array([float(p_.split(':')[0]), float(q_.split(':')[0])])
             y = np.array([float(p_.split(':')[1]), float(q_.split(':')[1])])
