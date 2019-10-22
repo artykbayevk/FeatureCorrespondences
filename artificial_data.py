@@ -1,3 +1,4 @@
+#%%
 import matplotlib.pyplot as plt
 import numpy as np
 from math import pi
@@ -25,11 +26,6 @@ class Dataset:
     def figure(self, angle, plot_figure=True):
         """
 
-        :param origin_x:
-        :param origin_y:
-        :param ellipse:
-        :param radius_x:
-        :param radius_y:
         :param angle:
         :param plot_figure:
         :return: p_x, p_y, q_x, q_y - 4 arrays of points of P and Q figures
@@ -54,48 +50,55 @@ class Dataset:
             plt.legend('QP', loc='upper left')
             plt.show()
 
-        P = np.array([
+        p = np.array([
             p_x, p_y
         ])
-        Q = np.array([
+        q = np.array([
             q_x, q_y
         ])
 
-        return P.T, Q.T
+        return p.T, q.T
 
-    def get_distances(self, P, Q):
+    def get_solutions(self, p, q):
         """
 
-        :param p_x:
-        :param p_y:
-        :param q_x:
-        :param q_y:
-        :param norm_value:
+        :param p:
+        :param q:
         :return: dict of pairs
         """
-        dist = cdist(P, Q) <= self.radius_on_x
+        dist = cdist(p, q) <= self.radius_on_x
         pos = np.where(dist)
 
-        unique, index, counts = np.unique(pos[0], return_counts=True, return_index=True)
+        p = pos[0]
+        q = pos[1]
 
-        P = pos[0]
-        Q = pos[1]
+        d = [[] for i in range(np.unique(p).shape[0])]
+        for i, j in zip(p, q):
+            d[i].append(j)
+        res = []
+        checker = set([])
+        answer = []
 
-        sample = np.zeros((np.unique(P).shape[0], 2))
-        for i in range(P.shape[0]):
-            print(P[i], Q[i])
+        def solve(v):
+            if len(res) == len(d):
+                answer.append(res.copy())
+            else:
+                for i in d[v]:
+                    if i not in checker:
+                        checker.add(i)
+                        res.append([v, i])
+                        check = solve(v + 1)
+                        if check is False:
+                            res.pop(-1)
+                            checker.remove(i)
+                        else:
+                            return True
+            return False
 
-
-
-        return self.min_value
-
-    def get_solutions(self, pairs):
-        """
-
-        :param pairs:
-        :return: ?
-        """
-        return pairs + self.p_number
+        solve(0)
+        solutions = np.array(answer)
+        print("Generated: {} samples.".format(solutions.shape[0]))
+        return solutions
 
     def get_value_for_solution(self, sol):
         """
@@ -106,21 +109,39 @@ class Dataset:
 
         return sol + self.q_number
 
+    def draw_solution(self, p, q, solutions):
+        idx = np.random.randint(0, solutions.shape[0], 1)[0]
+        sol = solutions[idx]
+        positions = np.zeros((p.shape[0], 4))
+
+        positions[:, 0:2] = p[sol[:, 0]]
+        positions[:, 2:4] = q[sol[:, 1]]
+        for pos in positions:
+            plt.plot([pos[0], pos[2]], [pos[1], pos[3]])
+        plt.scatter(positions[:, 0], positions[:, 1])
+        plt.scatter(positions[:, 2], positions[:, 3])
+        plt.grid(color='lightgray', linestyle='--')
+        plt.axis('equal')
+        plt.show()
+
     def generate(self):
         angle = np.pi
-        P, Q = self.figure(angle=angle, plot_figure=False)
-        dist = self.get_distances(P, Q)
+        p, q = self.figure(angle=angle, plot_figure=True)
+        solutions = self.get_solutions(p, q)
+        self.draw_solution(p, q, solutions)
 
     def __str__(self):
         return "Figure with P:{} and Q:{}\nOrigin Point: {}:{}\nRadius on X:{} and radius on Y:{}".format(
             self.p_number, self.q_number, self.origin_x, self.origin_y, self.radius_on_x, self.radius_on_y
         )
+#%%
 
 
 dataset = Dataset(
     max_value=100,
     min_value=0,
     number_of_p=5,
-    number_of_q=21)
+    number_of_q=16)
 print(dataset)
+#%%
 dataset.generate()
