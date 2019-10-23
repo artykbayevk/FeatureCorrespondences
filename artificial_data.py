@@ -38,9 +38,15 @@ class Dataset:
         q_x = self.origin_x + self.radius_on_x * np.cos(self.ellipse)
         q_y = self.origin_y + self.radius_on_y * np.sin(self.ellipse)
 
+        p_y_ = -p_x * np.sin(np.pi - angle) + p_y * np.cos(np.pi - angle)
+        p_x_ = p_x * np.cos(np.pi - angle) + p_y * np.sin(np.pi - angle)
+
+        q_y_ = -q_x * np.sin(np.pi - angle) + q_y * np.cos(np.pi - angle)
+        q_x_ = q_x * np.cos(np.pi - angle) + q_y * np.sin(np.pi - angle)
+
         if plot_figure:
-            plt.scatter(q_x, q_y, label="Q")
-            plt.scatter(p_x, p_y, label="P")
+            plt.scatter(q_x_, q_y_, label="Q")
+            plt.scatter(p_x_, p_y_, label="P")
 
             plt.xlabel("X")
             plt.ylabel("Y")
@@ -51,10 +57,10 @@ class Dataset:
             plt.show()
 
         p = np.array([
-            p_x, p_y
+            p_x_, p_y_
         ])
         q = np.array([
-            q_x, q_y
+            q_x_, q_y_
         ])
 
         return p.T, q.T
@@ -73,8 +79,11 @@ class Dataset:
         q = pos[1]
 
         d = [[] for i in range(np.unique(p).shape[0])]
+
         for i, j in zip(p, q):
             d[i].append(j)
+        maximum = np.prod([len(x) for x in d])
+        stop = 1
         res = []
         checker = set([])
         answer = []
@@ -116,6 +125,11 @@ class Dataset:
 
         positions[:, 0:2] = p[sol[:, 0]]
         positions[:, 2:4] = q[sol[:, 1]]
+
+        dist_P_Q = cdist(positions[:, 0:2], positions[:, 2:4])
+        dist_P_P = cdist(positions[:, 0:2], positions[:, 0:2])
+        dist_Q_Q = cdist(positions[:, 2:4], positions[:, 2:4])
+        stop = 1
         for pos in positions:
             plt.plot([pos[0], pos[2]], [pos[1], pos[3]])
         plt.scatter(positions[:, 0], positions[:, 1])
@@ -123,16 +137,16 @@ class Dataset:
         plt.grid(color='lightgray', linestyle='--')
         plt.axis('equal')
         plt.show()
-
+        stop = 1
     def generate(self):
-        angle = np.pi
+        angle = np.pi / 2
         p, q = self.figure(angle=angle, plot_figure=True)
         solutions = self.get_solutions(p, q)
         self.draw_solution(p, q, solutions)
 
     def __str__(self):
         return "Figure with P:{} and Q:{}\nOrigin Point: {}:{}\nRadius on X:{} and radius on Y:{}".format(
-            self.p_number, self.q_number, self.origin_x, self.origin_y, self.radius_on_x, self.radius_on_y
+            self.p_number, self.q_number, self.origin_x , self.origin_y, self.radius_on_x, self.radius_on_y
         )
 #%%
 
