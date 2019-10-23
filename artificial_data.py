@@ -1,9 +1,10 @@
 #%%
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from math import pi
 from scipy.spatial.distance import cdist
-
+import pandas as pd
 
 class Dataset:
     def __init__(self, max_value, min_value, number_of_p, number_of_q, samples=1, d_of_p=0.5):
@@ -109,14 +110,24 @@ class Dataset:
         print("Generated: {} samples.".format(solutions.shape[0]))
         return solutions
 
-    def get_value_for_solution(self, sol):
+    def get_value_for_solution(self, p, q, solutions):
         """
 
         :param sol:
         :return:
         """
+        def value_signer(p, q):
+            p_p = cdist(p,p)
+            q_q = cdist(q,q)
+            self.draw_sol_2(p,q)
+            stop = 1
 
-        return sol + self.q_number
+        y = np.zeros(shape=(solutions.shape[0], 1))
+
+
+        res = np.array(list(map(lambda sub: value_signer(p, q[sub[:,1]]), solutions)))
+        stop =  1
+        return res
 
     def draw_solution(self, p, q, solutions):
         idx = np.random.randint(0, solutions.shape[0], 1)[0]
@@ -129,7 +140,6 @@ class Dataset:
         dist_P_Q = cdist(positions[:, 0:2], positions[:, 2:4])
         dist_P_P = cdist(positions[:, 0:2], positions[:, 0:2])
         dist_Q_Q = cdist(positions[:, 2:4], positions[:, 2:4])
-        stop = 1
         for pos in positions:
             plt.plot([pos[0], pos[2]], [pos[1], pos[3]])
         plt.scatter(positions[:, 0], positions[:, 1])
@@ -137,12 +147,32 @@ class Dataset:
         plt.grid(color='lightgray', linestyle='--')
         plt.axis('equal')
         plt.show()
-        stop = 1
+
+    def draw_sol_2(self, p, q):
+        for i in range(p.shape[0]):
+            plt.plot([p[i,0],q[i, 0]], [p[i,1], q[i,1]])
+        plt.scatter(p[:, 0], p[:,1])
+        plt.scatter(q[:, 0], q[:,1])
+        plt.grid(color='lightgray', linestyle='--')
+        plt.axis('equal')
+        plt.show()
+
+    def save_features(self,P,Q):
+        path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\artificial'
+        P = pd.DataFrame(P)
+        Q = pd.DataFrame(Q)
+        P.to_csv(os.path.join(path, "P_new.csv"), header=None, index=None)
+        Q.to_csv(os.path.join(path, "Q_new.csv"), header=None, index=None)
+
     def generate(self):
-        angle = np.pi / 2
-        p, q = self.figure(angle=angle, plot_figure=True)
+        angle = np.pi
+        p, q = self.figure(angle=angle, plot_figure=False)
         solutions = self.get_solutions(p, q)
-        self.draw_solution(p, q, solutions)
+
+        self.save_features(p,q)
+        # self.draw_solution(p, q, solutions)
+
+        data = self.get_value_for_solution(p, q, solutions)
 
     def __str__(self):
         return "Figure with P:{} and Q:{}\nOrigin Point: {}:{}\nRadius on X:{} and radius on Y:{}".format(
@@ -154,8 +184,8 @@ class Dataset:
 dataset = Dataset(
     max_value=100,
     min_value=0,
-    number_of_p=5,
-    number_of_q=16)
+    number_of_p=7,
+    number_of_q=23)
 print(dataset)
 #%%
 dataset.generate()
