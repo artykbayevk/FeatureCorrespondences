@@ -120,13 +120,11 @@ class Dataset:
             p_p = cdist(p,p)
             q_q = cdist(q,q)
             self.draw_sol_2(p,q)
-            stop = 1
 
         y = np.zeros(shape=(solutions.shape[0], 1))
 
 
         res = np.array(list(map(lambda sub: value_signer(p, q[sub[:,1]]), solutions)))
-        stop =  1
         return res
 
     def draw_solution(self, p, q, solutions):
