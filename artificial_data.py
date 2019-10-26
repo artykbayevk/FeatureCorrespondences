@@ -5,6 +5,7 @@ import numpy as np
 from math import pi
 from scipy.spatial.distance import cdist
 import pandas as pd
+import operator
 
 class Dataset:
     def __init__(self, max_value, min_value, number_of_p, number_of_q, samples=1, d_of_p=0.5):
@@ -26,7 +27,7 @@ class Dataset:
 
     def figure(self, angle, plot_figure=True):
         """
-
+        Creating figure of P and Q features
         :param angle:
         :param plot_figure:
         :return: p_x, p_y, q_x, q_y - 4 arrays of points of P and Q figures
@@ -68,7 +69,7 @@ class Dataset:
 
     def get_solutions(self, p, q):
         """
-
+        Function for generating all possible solutions with using Python
         :param p:
         :param q:
         :return: dict of pairs
@@ -110,22 +111,75 @@ class Dataset:
         print("Generated: {} samples.".format(solutions.shape[0]))
         return solutions
 
-    def get_value_for_solution(self, p, q, solutions):
+    def get_value_for_solution(self, p, q, solutions, type = "Py"):
         """
-
+        choosing by the distances of P and Q features best or not best
         :param sol:
         :return:
         """
         def value_signer(p, q):
             p_p = cdist(p,p)
             q_q = cdist(q,q)
-            self.draw_sol_2(p,q)
+            best_sol = True
+            counts = 0
+            for i in range(0,p.shape[0] - 1):
+                p_dists = p_p[i, i+1]
+                q_dists = q_q[i, i+1]
+                if p_dists * 2 <= q_dists:
+                    best_sol = False
+                    counts+=1
 
-        y = np.zeros(shape=(solutions.shape[0], 1))
+            new_counts = 0
+            for i in range(0, p.shape[0] - 2):
+                p1_to_p2 = p_p[i,i+1]
+                q1_to_q2 = q_q[i,i+1]
+                p2_to_p3 = p_p[i+1,i+2]
+                q2_to_q3 = q_q[i+1,i+2]
 
+                if p1_to_p2 * 2 <= q1_to_q2 and p2_to_p3* 2 <= q2_to_q3:
+                    best_sol = False
+                    new_counts+=1
+            # self.draw_sol_2(p,q, "Best" if best_sol else "Opt")
+            stop = 1
+            if new_counts == 1 and counts == 2:
+                best_sol = True
+            elif counts == 1:
+                best_sol = True
 
-        res = np.array(list(map(lambda sub: value_signer(p, q[sub[:,1]]), solutions)))
-        return res
+            if best_sol:
+                self.draw_sol_2(p, q, "Best" if best_sol else "Opt")
+
+            return 1 if best_sol else 0
+
+        def my_sort(mini_sol):
+            out = np.array(sorted(mini_sol, key=operator.itemgetter(1)))
+            return out
+
+        if type == "Py":
+            res = np.array(list(map(lambda sub: value_signer(p, q[sub[:,1]]), solutions)))
+            best_idx = res > 0.0
+            sols = solutions[best_idx]
+            rand_sol = sols[np.random.randint(0, sols.shape[0] - 1, size=(1))[0]]
+            self.draw_sol_2(p, q[rand_sol[:,1]])
+
+            print("Best optimal solutions:{} and others:{} from:{}. {:.1f}/{:.1f} ".format(
+                np.sum(res), res.shape[0] - np.sum(res), res.shape[0], np.sum(res)*100.0/res.shape[0],
+                (res.shape[0]-np.sum(res))*100.0/res.shape[0]))
+            return res
+        elif type == 'LP':
+            solutions = solutions.reshape(solutions.shape[0],int(solutions.shape[1]/4),4)
+            solutions = np.array(list(map(lambda sub: my_sort(sub), solutions)))
+            res = np.array(list(map(lambda sub: value_signer(sub[:, 0:2], sub[:,2:4]), solutions)))
+            best_idx = res > 0.0
+            sols = solutions[best_idx]
+            rand_sol = sols[np.random.randint(0, sols.shape[0] - 1, size=(1))[0]]
+            self.draw_sol_2(rand_sol[:,0:2], rand_sol[:, 2:4])
+            print("Best optimal solutions:{} and others:{} from:{}. {:.1f}/{:.1f} ".format(
+                np.sum(res), res.shape[0] - np.sum(res), res.shape[0], np.sum(res)*100.0/res.shape[0],
+                (res.shape[0]-np.sum(res))*100.0/res.shape[0]))
+            return res
+        else:
+            return None
 
     def draw_solution(self, p, q, solutions):
         idx = np.random.randint(0, solutions.shape[0], 1)[0]
@@ -135,9 +189,6 @@ class Dataset:
         positions[:, 0:2] = p[sol[:, 0]]
         positions[:, 2:4] = q[sol[:, 1]]
 
-        dist_P_Q = cdist(positions[:, 0:2], positions[:, 2:4])
-        dist_P_P = cdist(positions[:, 0:2], positions[:, 0:2])
-        dist_Q_Q = cdist(positions[:, 2:4], positions[:, 2:4])
         for pos in positions:
             plt.plot([pos[0], pos[2]], [pos[1], pos[3]])
         plt.scatter(positions[:, 0], positions[:, 1])
@@ -146,11 +197,13 @@ class Dataset:
         plt.axis('equal')
         plt.show()
 
-    def draw_sol_2(self, p, q):
+    def draw_sol_2(self, p, q, title=None):
         for i in range(p.shape[0]):
             plt.plot([p[i,0],q[i, 0]], [p[i,1], q[i,1]])
         plt.scatter(p[:, 0], p[:,1])
         plt.scatter(q[:, 0], q[:,1])
+        if title:
+            plt.title(title)
         plt.grid(color='lightgray', linestyle='--')
         plt.axis('equal')
         plt.show()
@@ -162,15 +215,22 @@ class Dataset:
         P.to_csv(os.path.join(path, "P_new.csv"), header=None, index=None)
         Q.to_csv(os.path.join(path, "Q_new.csv"), header=None, index=None)
 
-    def generate(self):
+    def generate(self, LP = False):
         angle = np.pi
         p, q = self.figure(angle=angle, plot_figure=False)
-        solutions = self.get_solutions(p, q)
-
         self.save_features(p,q)
-        # self.draw_solution(p, q, solutions)
 
-        data = self.get_value_for_solution(p, q, solutions)
+        if LP:
+            path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\artificial'
+            sols = pd.read_csv(os.path.join(path, 'solutions.csv'),header=None, index_col=None).values
+            data = self.get_value_for_solution(p, q, sols, type = "LP")
+            stop = 1
+        else:
+            solutions = self.get_solutions(p, q)
+            # draw random solution
+            self.draw_solution(p, q, solutions)
+            # choose best or not best optimal solution
+            data = self.get_value_for_solution(p, q, solutions)
 
     def __str__(self):
         return "Figure with P:{} and Q:{}\nOrigin Point: {}:{}\nRadius on X:{} and radius on Y:{}".format(
@@ -186,4 +246,4 @@ dataset = Dataset(
     number_of_q=23)
 print(dataset)
 #%%
-dataset.generate()
+dataset.generate(LP = True)
