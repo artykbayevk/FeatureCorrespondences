@@ -111,7 +111,7 @@ class Dataset:
         print("Generated: {} samples.".format(solutions.shape[0]))
         return solutions
 
-    def get_value_for_solution(self, p, q, solutions, type = "Py"):
+    def get_value_for_solution(self, p, q, solutions, type = "Py", angle = None):
         """
         choosing by the distances of P and Q features best or not best
         :param sol:
@@ -146,13 +146,22 @@ class Dataset:
             elif counts == 1:
                 best_sol = True
 
-            if best_sol:
-                self.draw_sol_2(p, q, "Best" if best_sol else "Opt")
+            # if best_sol:
+            #     self.draw_sol_2(p, q, "Best" if best_sol else "Opt")
 
             return 1 if best_sol else 0
 
         def my_sort(mini_sol):
-            out = np.array(sorted(mini_sol, key=operator.itemgetter(1)))
+            axis = 1 # or can be 0
+            ranges = {
+                0: [
+                    [np.pi ]
+                ]
+            }
+
+            # TODO write sorting algorithm for chosen axises
+
+            out = np.array(sorted(mini_sol, key=operator.itemgetter(axis)))
             return out
 
         if type == "Py":
@@ -219,12 +228,10 @@ class Dataset:
         angle = np.pi
         p, q = self.figure(angle=angle, plot_figure=False)
         self.save_features(p,q)
-
         if LP:
             path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\artificial'
             sols = pd.read_csv(os.path.join(path, 'solutions.csv'),header=None, index_col=None).values
-            data = self.get_value_for_solution(p, q, sols, type = "LP")
-            stop = 1
+            data = self.get_value_for_solution(p, q, sols, type = "LP", angle = angle)
         else:
             solutions = self.get_solutions(p, q)
             # draw random solution
