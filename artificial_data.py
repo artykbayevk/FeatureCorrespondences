@@ -35,16 +35,16 @@ class Dataset:
         d = self.d_of_p
         p_n = self.p_number
 
-        p_y, p_x = np.arange(-d * int(p_n / 2), d * int(p_n / 2) + d, d) + self.origin_x, np.zeros(p_n) + self.origin_x
+        p_y, p_x = np.arange(-d * int(p_n / 2), d * int(p_n / 2) + d, d) , np.zeros(p_n)
 
-        q_x = self.origin_x + self.radius_on_x * np.cos(self.ellipse)
-        q_y = self.origin_y + self.radius_on_y * np.sin(self.ellipse)
+        q_x = self.radius_on_x * np.cos(self.ellipse)
+        q_y = self.radius_on_y * np.sin(self.ellipse)
 
-        p_y_ = -p_x * np.sin(np.pi - angle) + p_y * np.cos(np.pi - angle)
-        p_x_ = p_x * np.cos(np.pi - angle) + p_y * np.sin(np.pi - angle)
+        p_y_ = -p_x * np.sin(np.pi - angle) + p_y * np.cos(np.pi - angle) + self.origin_y
+        p_x_ = p_x * np.cos(np.pi - angle) + p_y * np.sin(np.pi - angle) + self.origin_x
 
-        q_y_ = -q_x * np.sin(np.pi - angle) + q_y * np.cos(np.pi - angle)
-        q_x_ = q_x * np.cos(np.pi - angle) + q_y * np.sin(np.pi - angle)
+        q_y_ = -q_x * np.sin(np.pi - angle) + q_y * np.cos(np.pi - angle) + self.origin_y
+        q_x_ = q_x * np.cos(np.pi - angle) + q_y * np.sin(np.pi - angle) + self.origin_x
 
         if plot_figure:
             plt.scatter(q_x_, q_y_, label="Q")
@@ -153,14 +153,14 @@ class Dataset:
 
         def my_sort(mini_sol):
             axis = 1 # or can be 0
-            ranges = {
-                0: [
-                    [np.pi ]
-                ]
-            }
+            phi = int(angle * 360/ np.pi)
+            stop =1
 
-            # TODO write sorting algorithm for chosen axises
-
+            if phi in range(0, 45) or phi in range(135 ,225) or phi in range(315,361):
+                axis = 1
+            else:
+                axis = 0
+            stop =  1
             out = np.array(sorted(mini_sol, key=operator.itemgetter(axis)))
             return out
 
@@ -225,9 +225,10 @@ class Dataset:
         Q.to_csv(os.path.join(path, "Q_new.csv"), header=None, index=None)
 
     def generate(self, LP = False):
-        angle = np.pi
-        p, q = self.figure(angle=angle, plot_figure=False)
+        angle = np.pi * 3/ 4
+        p, q = self.figure(angle=angle, plot_figure=True)
         self.save_features(p,q)
+        stop = 1
         if LP:
             path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\artificial'
             sols = pd.read_csv(os.path.join(path, 'solutions.csv'),header=None, index_col=None).values
