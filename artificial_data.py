@@ -6,14 +6,15 @@ from math import pi
 from scipy.spatial.distance import cdist
 import pandas as pd
 import operator
+import glob
 
 class Dataset:
-    def __init__(self, max_value, min_value, number_of_p, number_of_q, samples=1, d_of_p=0.5):
+    def __init__(self, max_value, min_value, number_of_p, number_of_q, samples=1, d_of_p = 0.5):
         self.max_value = max_value
         self.min_value = min_value
         self.p_number = number_of_p
         self.q_number = number_of_q
-        assert self.q_number / self.p_number >= 3
+        assert self.q_number / self.p_number >= 2
         assert self.p_number % 2 != 0
 
         self.ellipse = np.linspace(0, 2 * pi, self.q_number)
@@ -153,7 +154,7 @@ class Dataset:
 
         def my_sort(mini_sol):
             axis = 1 # or can be 0
-            phi = int(angle * 360/ np.pi)
+            phi = int(angle * 180/ np.pi)
             stop =1
 
             if phi in range(0, 45) or phi in range(135 ,225) or phi in range(315,361):
@@ -186,6 +187,9 @@ class Dataset:
             print("Best optimal solutions:{} and others:{} from:{}. {:.1f}/{:.1f} ".format(
                 np.sum(res), res.shape[0] - np.sum(res), res.shape[0], np.sum(res)*100.0/res.shape[0],
                 (res.shape[0]-np.sum(res))*100.0/res.shape[0]))
+            solutions = solutions.reshape(solutions.shape[0], solutions.shape[1] * solutions.shape[2])
+            res = np.broadcast_to(np.array(res)[:, None], solutions.shape[:-1] + (1,))
+            res = pd.DataFrame(np.concatenate((solutions, res), axis=-1))
             return res
         else:
             return None
@@ -225,20 +229,34 @@ class Dataset:
         Q.to_csv(os.path.join(path, "Q_new.csv"), header=None, index=None)
 
     def generate(self, LP = False):
-        angle = np.pi * 3/ 4
+        angle = np.pi / 6
+        phi = int(angle * 180/ np.pi)
         p, q = self.figure(angle=angle, plot_figure=True)
         self.save_features(p,q)
-        stop = 1
         if LP:
             path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\artificial'
             sols = pd.read_csv(os.path.join(path, 'solutions.csv'),header=None, index_col=None).values
             data = self.get_value_for_solution(p, q, sols, type = "LP", angle = angle)
+            f_name = os.path.join(path, "data_{}.csv".format(phi))
+            data.to_csv(f_name, header=None, index=None)
         else:
             solutions = self.get_solutions(p, q)
             # draw random solution
             self.draw_solution(p, q, solutions)
             # choose best or not best optimal solution
             data = self.get_value_for_solution(p, q, solutions)
+
+    def collect_data(self):
+        """
+
+        :return:
+        """
+        path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\artificial'
+        data_f_list =glob.glob(os.path.join(path, "data_*"))
+        data = pd.concat([
+            pd.read_csv(x, header=None) for x in data_f_list
+        ], ignore_index=True)
+        data.to_csv(os.path.join(path, "dataset.csv"), header = None, index= False)
 
     def __str__(self):
         return "Figure with P:{} and Q:{}\nOrigin Point: {}:{}\nRadius on X:{} and radius on Y:{}".format(
@@ -251,7 +269,8 @@ dataset = Dataset(
     max_value=100,
     min_value=0,
     number_of_p=7,
-    number_of_q=23)
+    number_of_q=25)
 print(dataset)
 #%%
-dataset.generate(LP = True)
+# dataset.generate(LP = True) # generating artificial dataset and run LP for choosing all optimal solutions
+dataset.collect_data() # collecting all generated data

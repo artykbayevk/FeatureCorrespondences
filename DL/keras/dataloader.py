@@ -19,7 +19,7 @@ def transform_samples(dataset, mult, size_of_sample):
 
 
 def get_divided_data(path, ts_size, val_size, dummy_mult):
-    dataset = np.load(path)
+    dataset = pd.read_csv(path, header=None).values
     size_of_sample = (dataset.shape[1]-1) * dummy_mult
     dataset = transform_samples(dataset, dummy_mult ,size_of_sample)
     main_scaler = StandardScaler().fit(dataset[:, :-1])
@@ -32,6 +32,10 @@ def get_divided_data(path, ts_size, val_size, dummy_mult):
     x_tr = main_scaler.transform(x_tr)
     x_ts = main_scaler.transform(x_ts)
     x_val = main_scaler.transform(x_val)
+
+    print("X_train size:{}".format(x_tr.shape))
+    print("X_train size:{}".format(x_val.shape))
+    print("X_train size:{}".format(x_ts.shape))
 
     return (x_tr, y_tr), (x_val, y_val), (x_ts, y_ts), size_of_sample, main_scaler
 
