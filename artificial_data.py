@@ -258,6 +258,22 @@ class Dataset:
         ], ignore_index=True)
         data.to_csv(os.path.join(path, "dataset.csv"), header = None, index= False)
 
+    def dataset_info(self):
+        """
+
+        :return:
+        """
+        path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\artificial'
+        df = pd.read_csv(os.path.join(path, "dataset.csv"), header=None)
+        sizeOfData = df.shape[0]
+        sizeOfSample = df.shape[1] - 1
+        countOfBest = df.iloc[:,-1][df.iloc[:,-1] > 0.0].shape[0]
+        countOfOpt = df.iloc[:,-1][df.iloc[:, -1] == 0.0].shape[0]
+
+        print("Total dataset size: {} samples per {} features. Best per Opt : {}/{}".format(sizeOfData, sizeOfSample, countOfBest, countOfOpt))
+
+
+
     def __str__(self):
         return "Figure with P:{} and Q:{}\nOrigin Point: {}:{}\nRadius on X:{} and radius on Y:{}".format(
             self.p_number, self.q_number, self.origin_x , self.origin_y, self.radius_on_x, self.radius_on_y
@@ -273,4 +289,5 @@ dataset = Dataset(
 print(dataset)
 #%%
 # dataset.generate(LP = True) # generating artificial dataset and run LP for choosing all optimal solutions
-dataset.collect_data() # collecting all generated data
+# dataset.collect_data() # collecting all generated data
+dataset.dataset_info()

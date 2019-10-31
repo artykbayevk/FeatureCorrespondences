@@ -18,20 +18,34 @@ def transform_samples(dataset, mult, size_of_sample):
     return data
 
 
-def get_divided_data(path, ts_size, val_size, dummy_mult):
+def get_divided_data(path, ts_size, val_size, dummy_mult, ownScaler = True):
     dataset = pd.read_csv(path, header=None).values
     size_of_sample = (dataset.shape[1]-1) * dummy_mult
     dataset = transform_samples(dataset, dummy_mult ,size_of_sample)
     main_scaler = StandardScaler().fit(dataset[:, :-1])
-    X_raw = dataset[:, :-1]
+
+    if ownScaler:
+        df = np.copy(dataset[:, :-1]).reshape(dataset.shape[0], int(dataset[:,:-1].shape[1]/2), 2)
+        mean_X = df[:, :, 0].mean()
+        mean_Y = df[:, :, 1].mean()
+
+        df[:, :, 0] = mean_X - df[:, :, 0]
+        df[:, :, 1] = mean_Y - df[:, :, 1]
+        df = df.reshape(dataset.shape[0], dataset[:,:-1].shape[1])
+
+    if ownScaler:
+        X_raw = np.copy(df)
+    else:
+        X_raw = dataset[:, :-1]
     Y = dataset[:, -1]
 
     x_tr, x_val_origin, y_tr, y_val_origin = train_test_split(X_raw, Y, test_size=val_size, random_state=42)
     x_val, x_ts, y_val, y_ts = train_test_split(x_val_origin, y_val_origin, test_size=ts_size, random_state=42)
 
-    x_tr = main_scaler.transform(x_tr)
-    x_ts = main_scaler.transform(x_ts)
-    x_val = main_scaler.transform(x_val)
+    if ownScaler == False:
+        x_tr = main_scaler.transform(x_tr)
+        x_ts = main_scaler.transform(x_ts)
+        x_val = main_scaler.transform(x_val)
 
     print("X_train size:{}".format(x_tr.shape))
     print("X_train size:{}".format(x_val.shape))
@@ -40,11 +54,18 @@ def get_divided_data(path, ts_size, val_size, dummy_mult):
     return (x_tr, y_tr), (x_val, y_val), (x_ts, y_ts), size_of_sample, main_scaler
 
 
-def get_pair_features(folder, size_of_sample):
+def get_pair_features(folder, size_of_sample, ownScaler = True):
     list_of_files = glob.glob(os.path.join(folder, "*.csv"))
     dataset = np.zeros((len(list_of_files), size_of_sample))
     for idx, item in enumerate(list_of_files):
         dataset[idx] = pd.read_csv(item, header=None, delimiter=',').values.flatten()
     # dataset = StandardScaler().fit_transform(dataset)
-    dataset = StandardScaler().fit_transform(X=dataset)
+    # dataset = StandardScaler().fit_transform(X=dataset)
+    if ownScaler:
+        df = np.copy(dataset).reshape(dataset.shape[0], int(dataset.shape[1]/2), 2)
+        mean_X = df[:, 0].mean()
+        mean_Y = df[:, 1].mean()
+
+        df[:, 0] = mean_X - df[:, 0]
+        df[:, 1] = mean_Y - df[:, 1]
     return dataset
