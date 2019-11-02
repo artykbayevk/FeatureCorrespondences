@@ -56,3 +56,4 @@ def predict(inference_data, checkpoint, size_of_sample):
     model.summary()
 
     pred = model.predict_classes(x_inf)
+    return pred

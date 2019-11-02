@@ -238,7 +238,7 @@ class Dataset:
             sols = pd.read_csv(os.path.join(path, 'solutions.csv'),header=None, index_col=None).values
             data = self.get_value_for_solution(p, q, sols, type = "LP", angle = angle)
             f_name = os.path.join(path, "data_{}.csv".format(phi))
-            data.to_csv(f_name, header=None, index=None)
+            # data.to_csv(f_name, header=None, index=None)
         else:
             solutions = self.get_solutions(p, q)
             # draw random solution

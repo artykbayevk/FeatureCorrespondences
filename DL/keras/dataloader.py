@@ -26,11 +26,13 @@ def get_divided_data(path, ts_size, val_size, dummy_mult, ownScaler = True):
 
     if ownScaler:
         df = np.copy(dataset[:, :-1]).reshape(dataset.shape[0], int(dataset[:,:-1].shape[1]/2), 2)
+        min = df.min()
+        max = df.max()
+        df = np.interp(df, (min, max), (0, 100))
         mean_X = df[:, :, 0].mean()
         mean_Y = df[:, :, 1].mean()
-
-        df[:, :, 0] = mean_X - df[:, :, 0]
-        df[:, :, 1] = mean_Y - df[:, :, 1]
+        df[:, :, 0] = df[:, :, 0] - mean_X
+        df[:, :, 1] = df[:, :, 1] - mean_Y
         df = df.reshape(dataset.shape[0], dataset[:,:-1].shape[1])
 
     if ownScaler:
@@ -59,13 +61,13 @@ def get_pair_features(folder, size_of_sample, ownScaler = True):
     dataset = np.zeros((len(list_of_files), size_of_sample))
     for idx, item in enumerate(list_of_files):
         dataset[idx] = pd.read_csv(item, header=None, delimiter=',').values.flatten()
-    # dataset = StandardScaler().fit_transform(dataset)
-    # dataset = StandardScaler().fit_transform(X=dataset)
     if ownScaler:
         df = np.copy(dataset).reshape(dataset.shape[0], int(dataset.shape[1]/2), 2)
+        df = np.interp(df, (df.min(), df.max()), (0, 100))
         mean_X = df[:, 0].mean()
         mean_Y = df[:, 1].mean()
 
-        df[:, 0] = mean_X - df[:, 0]
-        df[:, 1] = mean_Y - df[:, 1]
+        df[:, 0] = df[:, 0] - mean_X
+        df[:, 1] = df[:, 1] - mean_Y
+
     return dataset
