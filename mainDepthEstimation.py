@@ -1,4 +1,3 @@
-import json
 import os
 import glob
 import numpy as np
@@ -86,6 +85,7 @@ class Stereo:
             julia.findRootSIFTFeatures(n_components=self.n_components)
 
             ## stop here for running julia, then run next processes
+
             stop = 1
             f_path = os.path.join(self.exp_dir, 'matchedPoints_' + str(f_i) + '.csv')
             julia.matchingRootSIFTFeatures(f_path, True)
