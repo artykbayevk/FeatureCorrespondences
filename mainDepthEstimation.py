@@ -91,7 +91,19 @@ class Stereo:
             julia.matchingRootSIFTFeatures(f_path, True)
             julia.findRTmatrices()
             julia.point_cloud(plot=self.draw_plot, title="Our method #{}".format(f_i))
-            self.pred = julia.pts3D
+            pred = julia.pts3D
+            metrics = Hausdorff(u=pred, v=self.target)
+            dist_cheb_avg = metrics.distance(d_type="cheb", criteria="avg")
+            dist_cheb_max = metrics.distance(d_type="cheb", criteria="max")
+            dist_man_avg = metrics.distance(d_type="man", criteria="avg")
+            dist_man_max = metrics.distance(d_type="man", criteria="max")
+            dist_euc_avg = metrics.distance(d_type="euc", criteria="avg")
+            dist_euc_max = metrics.distance(d_type="euc", criteria="max")
+            print(
+                "\t\t#{}: \t\t {:5f} {:5f} {:5f} {:5f} {:5f} {:5f}".format(f_i, dist_cheb_avg, dist_cheb_max,
+                                                                           dist_man_avg,
+                                                                           dist_man_max, dist_euc_avg, dist_euc_max))
+
 
 stereo = Stereo(
     path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_9',
