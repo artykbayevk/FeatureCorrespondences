@@ -1,0 +1,103 @@
+import json
+import os
+import glob
+import numpy as np
+import matplotlib.pyplot as plt
+
+from scripts.Triangulation.Depth import Triangulation
+from scripts.Triangulation.HausdorffDist import Hausdorff
+
+class Stereo:
+    def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, opt_solutions = 0):
+        folder = glob.glob(os.path.join(path,'*'))
+        '''
+            collecting data from folder and put into folder_data variable
+        '''
+        folder_data = {}
+        for item in folder:
+            b_name = os.path.basename(item)
+            if 'dataset' in b_name:
+                folder_data['dataset'] = item
+            elif 'left' in b_name:
+                folder_data['left_img'] = item
+            elif 'right' in b_name:
+                folder_data['right_img'] = item
+
+        with open(folder_data['dataset'], mode='r', encoding='utf-8') as f:
+            content = f.readlines()
+        content = [x for x in content if x.strip(' ') !='\n']
+        K_data = [content[1:4],content[8:11]]
+        RT_data = [content[4:7], content[11:]]
+        K_data = np.array([
+            np.array([ np.array([float(z) for z in y.strip('\n').strip(' ').split(' ')]) for y in x]) for x in K_data
+        ])
+        RT_data = np.array([
+            np.array([ np.array([float(z) for z in y.strip('\n').strip(' ').split(' ')]) for y in x]) for x in RT_data
+        ])
+
+        '''
+            assigning intrinsic and extrinsic parameters 
+        '''
+        self.K = K_data[0]
+        self.R1 = RT_data[1][:, :-1].T
+        self.T1 = RT_data[1][:, -1]
+        self.R2 = RT_data[0][:, :-1].T
+        self.T2 = RT_data[0][:, -1]
+
+        self.img1_path = folder_data['left_img']
+        self.img2_path = folder_data['right_img']
+
+        self.n_components = n_components
+        self.draw_plot = plot_ground_truth
+        self.show_imgs = show_imgs
+
+        self.exp_dir = os.path.join(path, 'experiment')
+
+        if not os.path.exists(self.exp_dir):
+            os.makedirs(self.exp_dir)
+
+        self.opt_solutions = len(glob.glob(os.path.join(self.exp_dir, "*.csv")))
+
+    def compute_ground_truth(self):
+        opencv = Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
+        opencv.load_imgs(self.img1_path, self.img2_path)
+        opencv.findRootSIFTFeatures(n_components=self.n_components)
+        opencv.matchingRootSIFTFeatures()
+        opencv.findRTmatrices()
+        if self.show_imgs:
+            f = plt.figure()
+            f.add_subplot(1, 2, 1)
+            plt.imshow(opencv.img1, cmap="gray")
+            f.add_subplot(1, 2, 2)
+            plt.imshow(opencv.img2, cmap="gray")
+            plt.show(block=True)
+            matched_img = os.path.join(os.path.dirname(self.img1_path), "matchedGT.png")
+            opencv.drawMathces(matched_img)
+            matched = plt.imread(matched_img)
+            plt.imshow(matched, cmap="gray")
+            plt.show()
+        opencv.point_cloud(plot=self.draw_plot, title="OpenCV")
+        self.target = opencv.pts3D
+
+    def julia_method(self):
+        for f_i in range(1, self.opt_solutions+1):
+            julia= Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
+            julia.load_imgs(self.img1_path, self.img2_path)
+            julia.findRootSIFTFeatures(n_components=self.n_components)
+
+            ## stop here for running julia, then run next processes
+            stop = 1
+            f_path = os.path.join(self.exp_dir, 'matchedPoints_' + str(f_i) + '.csv')
+            julia.matchingRootSIFTFeatures(f_path, True)
+            julia.findRTmatrices()
+            julia.point_cloud(plot=self.draw_plot, title="Our method #{}".format(f_i))
+            self.pred = julia.pts3D
+
+stereo = Stereo(
+    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_9',
+    n_components = 70,
+    plot_ground_truth=False,
+    show_imgs = False
+)
+stereo.compute_ground_truth()
+stereo.julia_method()
