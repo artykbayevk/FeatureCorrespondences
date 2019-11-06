@@ -37,6 +37,8 @@ class Stereo:
         '''
             assigning intrinsic and extrinsic parameters 
         '''
+
+        self.main_path = path
         self.K = K_data[0]
         self.R1 = RT_data[1][:, :-1].T
         self.T1 = RT_data[1][:, -1]
@@ -55,7 +57,7 @@ class Stereo:
         if not os.path.exists(self.exp_dir):
             os.makedirs(self.exp_dir)
 
-        self.opt_solutions = len(glob.glob(os.path.join(self.exp_dir, "*.csv")))
+
 
     def compute_ground_truth(self):
         opencv = Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
@@ -78,15 +80,26 @@ class Stereo:
         opencv.point_cloud(plot=self.draw_plot, title="OpenCV")
         self.target = opencv.pts3D
 
+    def compute_LP(self):
+        process = subprocess.Popen(
+            ['julia', r'C:\Users\user\Documents\Research\FeatureCorrespondenes\scripts\DepthEstimation.jl',
+             self.img1_path,
+             self.img2_path,
+             self.main_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        print(stdout, stderr)
+        self.opt_solutions = len(glob.glob(os.path.join(self.exp_dir, "*.csv")))
+
+
     def julia_method(self):
+        self.compute_LP()
+
         for f_i in range(1, self.opt_solutions+1):
             julia= Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
             julia.load_imgs(self.img1_path, self.img2_path)
             julia.findRootSIFTFeatures(n_components=self.n_components)
-
-            ## stop here for running julia, then run next processes
-
-            stop = 1
             f_path = os.path.join(self.exp_dir, 'matchedPoints_' + str(f_i) + '.csv')
             julia.matchingRootSIFTFeatures(f_path, True)
             julia.findRTmatrices()
@@ -105,16 +118,14 @@ class Stereo:
                                                                            dist_man_max, dist_euc_avg, dist_euc_max))
 
 
-# stereo = Stereo(
-#     path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_9',
-#     n_components = 70,
-#     plot_ground_truth=False,
-#     show_imgs = False
-# )
-# stereo.compute_ground_truth()
-# stereo.julia_method()
-process = subprocess.Popen(['julia', r'C:\Users\user\Documents\Research\FeatureCorrespondenes\scripts\DepthEstimation.jl'],
-                     stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE)
-stdout, stderr = process.communicate()
-print(stdout, stderr)
+stereo = Stereo(
+    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_9',
+    n_components = 70,
+    plot_ground_truth=True,
+    show_imgs = True
+)
+stereo.compute_ground_truth()
+stereo.julia_method()
+
+
+
