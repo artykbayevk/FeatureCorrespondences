@@ -1,8 +1,8 @@
 import os
 import glob
+import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
-
 from scripts.Triangulation.Depth import Triangulation
 from scripts.Triangulation.HausdorffDist import Hausdorff
 
@@ -105,11 +105,16 @@ class Stereo:
                                                                            dist_man_max, dist_euc_avg, dist_euc_max))
 
 
-stereo = Stereo(
-    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_9',
-    n_components = 70,
-    plot_ground_truth=False,
-    show_imgs = False
-)
-stereo.compute_ground_truth()
-stereo.julia_method()
+# stereo = Stereo(
+#     path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_9',
+#     n_components = 70,
+#     plot_ground_truth=False,
+#     show_imgs = False
+# )
+# stereo.compute_ground_truth()
+# stereo.julia_method()
+process = subprocess.Popen(['julia', r'C:\Users\user\Documents\Research\FeatureCorrespondenes\scripts\DepthEstimation.jl'],
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE)
+stdout, stderr = process.communicate()
+print(stdout, stderr)

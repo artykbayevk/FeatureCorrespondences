@@ -52,6 +52,8 @@ depth3DPoints_1
 depth3DPoints_2 = Three3DPoints(leftCord_2, rightCord_2)
 depth3DPoints_2
 
+println(depth3DPoints_1)
+
 u = [[1.0 0.0 3.0] ; [0.0 1.0 3.0] ; [-1.0 0.0 3.0] ; [0.0 -1.0 3.0]]'
 v = [[2.0 0.0 5.0] ; [0.0 2.0 5.0] ; [-2.0 0.0 5.0] ; [0.0 -4.0 5.0]]'
 
@@ -63,4 +65,4 @@ function hausdorff_in(A,B)
     return result
 end;
 
-hausdorff_in(u, v)
+# hausdorff_in(u, v)
