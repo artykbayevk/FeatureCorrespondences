@@ -1,5 +1,6 @@
 import os
 import glob
+import json
 import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
@@ -93,8 +94,9 @@ class Stereo:
         self.opt_solutions = len(glob.glob(os.path.join(self.exp_dir, "*.csv")))
 
 
-    def julia_method(self):
-        self.compute_LP()
+    def julia_method(self, run_julia=True):
+        if run_julia:
+            self.compute_LP()
 
         for f_i in range(1, self.opt_solutions+1):
             julia= Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
@@ -117,15 +119,16 @@ class Stereo:
                                                                            dist_man_avg,
                                                                            dist_man_max, dist_euc_avg, dist_euc_max))
 
-
+with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
+    CONFIG = json.load(f)["config"]
 stereo = Stereo(
     path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_9',
-    n_components = 70,
+    n_components = int(CONFIG["SIFTFeatures"]),
     plot_ground_truth=True,
     show_imgs = True
 )
 stereo.compute_ground_truth()
-stereo.julia_method()
+stereo.julia_method(run_julia = False)
 
 
 
