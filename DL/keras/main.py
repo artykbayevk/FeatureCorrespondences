@@ -25,9 +25,8 @@ if phase == 'train':
 elif phase == 'test':
     test(test_data, checkpoint, size_of_sample)
 elif phase == 'inferencePair':
-    folder = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dense\experiment'
+    folder = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_8\experiment'
     inference_data = get_pair_features(folder=folder, size_of_sample=size_of_sample)
-    # inference_data = scaler.transform(inference_data)
     pred = predict(inference_data, checkpoint, size_of_sample)
     print(pred)
 # TODO evaluate with stereo images

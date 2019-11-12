@@ -34,8 +34,6 @@ def get_divided_data(path, ts_size, val_size, dummy_mult, ownScaler = True):
         df[:, :, 0] = df[:, :, 0] - mean_X
         df[:, :, 1] = df[:, :, 1] - mean_Y
         df = df.reshape(dataset.shape[0], dataset[:,:-1].shape[1])
-
-    if ownScaler:
         X_raw = np.copy(df)
     else:
         X_raw = dataset[:, :-1]
@@ -69,5 +67,6 @@ def get_pair_features(folder, size_of_sample, ownScaler = True):
 
         df[:, 0] = df[:, 0] - mean_X
         df[:, 1] = df[:, 1] - mean_Y
-
+        df = df.reshape(df.shape[0],280)
+        return df
     return dataset
