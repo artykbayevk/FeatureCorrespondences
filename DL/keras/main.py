@@ -15,7 +15,7 @@ lr = 0.001
 batch_size = 100
 dummy_mult = 10
 
-phase = 'inferencePair'  # train or test or predict
+phase = 'noth'  # train or test or predict
 train_data, val_data, test_data, size_of_sample, scaler = get_divided_data(path=path, val_size=val_size, ts_size=test_size,
                                                                    dummy_mult=dummy_mult)
 
@@ -32,4 +32,10 @@ elif phase == 'inferencePair':
 # TODO evaluate with stereo images
 # TODO try to train with 0-mean
 # TODO meeting w/ professor and ask about any other ways to implement that
+Y = train_data[1]
+print(sum(Y))
+print(Y.shape)
 
+Y = test_data[1]
+print(sum(Y))
+print(Y.shape)

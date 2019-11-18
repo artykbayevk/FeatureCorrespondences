@@ -132,3 +132,7 @@ stereo.julia_method(run_julia = True)
 
 
 
+# TODO choosing different optimal solutions
+# TODO create new 100+ not best optimal and artificial solutions
+# TODO run this dataset on our model and evaluate
+
