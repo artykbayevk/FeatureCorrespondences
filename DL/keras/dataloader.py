@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 
+np.random.seed(42)
 
 def transform_samples(dataset, mult, size_of_sample):
     data = np.zeros((dataset.shape[0], size_of_sample+1))
@@ -54,11 +55,30 @@ def get_divided_data(path, ts_size, val_size, dummy_mult, ownScaler = True):
     return (x_tr, y_tr), (x_val, y_val), (x_ts, y_ts), size_of_sample, main_scaler
 
 
-def get_pair_features(folder, size_of_sample, ownScaler = True):
+def get_pair_features(folder, size_of_sample, ownScaler = True, artificial_data=False):
     list_of_files = glob.glob(os.path.join(folder, "*.csv"))
     dataset = np.zeros((len(list_of_files), size_of_sample))
     for idx, item in enumerate(list_of_files):
         dataset[idx] = pd.read_csv(item, header=None, delimiter=',').values.flatten()
+
+    # generate new artificial not optimal solutions here
+    if artificial_data:
+        gen_df = pd.DataFrame(columns = range(280), index=range(100))
+        sample_df = np.copy(dataset)
+        for i in range(100):
+            rand_index = np.random.randint(0, sample_df.shape[0], size=(1,)).item()
+            sample = sample_df[rand_index, :].reshape(140,2)
+
+            P = sample[::2]
+            Q = sample[1::2]
+            np.random.shuffle(P)
+            np.random.shuffle(Q)
+
+            sample = np.stack((P,Q), axis=1).reshape(280)
+            gen_df.iloc[i] = sample
+
+        dataset = np.concatenate((dataset, gen_df))
+
     if ownScaler:
         df = np.copy(dataset).reshape(dataset.shape[0], int(dataset.shape[1]/2), 2)
         df = np.interp(df, (df.min(), df.max()), (0, 100))
