@@ -46,8 +46,8 @@ def test(test_data, checkpoint, size_of_sample):
     model.summary()
 
     pred = model.predict_classes(x_ts).reshape(-1)
-    acc, f1 = accuracy_score(y_true=y_ts, y_pred=pred), f1_score(y_true=y_ts, y_pred=pred)
-    print("Test dataset: acc:{:5f} and f1:{:5f}".format(acc, f1))
+    acc, f1 = accuracy_score(y_true=y_ts, y_pred=pred), f1_score(y_true=y_ts, y_pred=pred, average=None)
+    print("Test dataset: acc:{:5f} and f1:{:5f} and {:5f}".format(acc, f1[0], f1[1]))
 
 def predict(inference_data, checkpoint, size_of_sample):
     x_inf = inference_data

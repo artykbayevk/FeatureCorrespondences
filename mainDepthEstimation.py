@@ -122,17 +122,13 @@ class Stereo:
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 stereo = Stereo(
-    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_8',
+    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_22',
     n_components = int(CONFIG["SIFTFeatures"]),
-    plot_ground_truth=True,
+    plot_ground_truth=False,
     show_imgs = True
 )
 stereo.compute_ground_truth()
 stereo.julia_method(run_julia = True)
 
 
-
-# TODO choosing different optimal solutions
-# TODO create new 100+ not best optimal and artificial solutions
-# TODO run this dataset on our model and evaluate
 

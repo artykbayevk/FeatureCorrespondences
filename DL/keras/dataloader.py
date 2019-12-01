@@ -90,3 +90,59 @@ def get_pair_features(folder, size_of_sample, ownScaler = True, artificial_data=
         df = df.reshape(df.shape[0],280)
         return df
     return dataset
+
+def merge_dataset(artificial_data_path, ts_size, val_size, dummy_mult, stereo_images_folder,mergeScale = True):
+    artificial_data = pd.read_csv(artificial_data_path, header=None).values
+    size_of_sample = (artificial_data.shape[1] - 1)*dummy_mult
+    artificial_data = transform_samples(artificial_data, dummy_mult, size_of_sample)
+
+    if mergeScale == False:
+        ### artificial data
+        df = np.copy(artificial_data[:, :-1]).reshape(artificial_data.shape[0], int(artificial_data[:, :-1].shape[1] / 2), 2)
+        min = df.min()
+        max = df.max()
+        df = np.interp(df, (min, max), (0, 100))
+        mean_X = df[:, :, 0].mean()
+        mean_Y = df[:, :, 1].mean()
+        df[:, :, 0] = df[:, :, 0] - mean_X
+        df[:, :, 1] = df[:, :, 1] - mean_Y
+        df = df.reshape(artificial_data.shape[0], artificial_data[:, :-1].shape[1])
+        X_raw = np.copy(df)
+        Y_raw = artificial_data[:, -1]
+        ### stereo data
+        list_of_stereo = glob.glob(os.path.join(stereo_images_folder, "*.csv"))
+        stereo = []
+        for file in list_of_stereo:
+            tmp_read_data = pd.read_csv(file, header=None, delimiter=',')
+            stereo.append(tmp_read_data)
+        stereo_dataset = pd.concat(stereo)
+
+        target = stereo_dataset[280]
+        df = np.copy(stereo_dataset.drop(280, axis=1)).reshape(stereo_dataset.shape[0], int((stereo_dataset.shape[1] -1)/ 2), 2)
+        df = np.interp(df, (df.min(), df.max()), (0, 100))
+        mean_X = df[:, 0].mean()
+        mean_Y = df[:, 1].mean()
+
+        df[:, 0] = df[:, 0] - mean_X
+        df[:, 1] = df[:, 1] - mean_Y
+        df = df.reshape(df.shape[0], 280)
+
+
+
+        ## mergin data
+    X = np.concatenate((X_raw, df))
+    Y = np.concatenate((Y_raw, target))
+
+    x_tr, x_val_origin, y_tr, y_val_origin = train_test_split(X, Y, test_size=val_size, random_state=42)
+    x_val, x_ts, y_val, y_ts = train_test_split(x_val_origin, y_val_origin, test_size=ts_size, random_state=42)
+
+
+    train_data = (x_tr, y_tr)
+    val_data = (x_val, y_val)
+    test_data = (x_ts, y_ts)
+
+    print(" Dataset size: \nTrain data:{}\nVal data:{}\nTest data:{}".format(train_data[0].shape, val_data[0].shape, test_data[0].shape, ))
+
+    return train_data, val_data, test_data, size_of_sample
+
+
