@@ -48,6 +48,7 @@ class HeuristicMethod:
             # plt.scatter(P[:,0],P[:,1])
             # plt.scatter(Q[:,0],Q[:,1])
             # plt.show()
+            stop = 1
             count = 0
             p1_to_p2 = cdist(P,P)
             q1_to_q2 = cdist(Q,Q)
@@ -65,8 +66,7 @@ class HeuristicMethod:
             print("{:.2f} % out of {} correspondences are passed treshold".format(count*100/P.shape[0], P.shape[0]))
             self.df.iloc[idx, -2] = count*100/P.shape[0]
 
-
-        ## setting values on term of their count of
+        # setting values on term of their count of
         plt.boxplot(self.df['value'])
         plt.show()
 
@@ -78,15 +78,16 @@ class HeuristicMethod:
 
         upper_bound = q3 + (1.5 * iqr)
         self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x > upper_bound else 0.0)
+
     def save(self, out_path):
         df = self.df.drop("value", axis=1)
         df.to_csv(out_path, index=None, header=False)
         print("Saved")
 
 
-folder_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_20\experiment'
+folder_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_1\experiment'
 HR = HeuristicMethod(
     folder_path, size_of_sample=280, artificial_data_count = 1000,artifical_data=True
 )
 HR.assign_values()
-HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_20.csv')
+HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
