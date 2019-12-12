@@ -11,15 +11,15 @@ checkpoint = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\m
 stereo_images_features = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data'
 val_size = 0.3
 test_size = 0.5  # out of validation dataset
-n_epochs = 1000
+n_epochs = 100
 lr = 0.001
-batch_size = 100
+batch_size = 10
 dummy_mult = 10
 
-phase = 'inferencePair'  # train or test or predict
+phase = 'test'  # train or test or predict
 train_data, val_data, test_data,size_of_sample = merge_dataset(
     artificial_data_path=path,ts_size=0.5, val_size=val_size,
-    dummy_mult=dummy_mult,stereo_images_folder=stereo_images_features, mergeScale=False
+    dummy_mult=dummy_mult, stereo_images_folder=stereo_images_features, mergeScale=False
 )
 
 

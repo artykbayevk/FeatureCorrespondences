@@ -5,6 +5,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras import optimizers
 from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import confusion_matrix
 
 def dl_model(input_size):
     model = Sequential()
@@ -13,6 +15,15 @@ def dl_model(input_size):
     model.add(Dropout(0.3, noise_shape=None, seed=None))
 
     model.add(Dense(100, activation='relu', kernel_regularizer=l2(0.01)))
+    model.add(Dropout(0.3, noise_shape=None, seed=None))
+
+    model.add(Dense(50, activation='relu', kernel_regularizer=l2(0.01)))
+    model.add(Dropout(0.3, noise_shape=None, seed=None))
+
+    model.add(Dense(100, activation='relu', kernel_regularizer=l2(0.01)))
+    model.add(Dropout(0.3, noise_shape=None, seed=None))
+
+    model.add(Dense(75, activation='relu', kernel_regularizer=l2(0.01)))
     model.add(Dropout(0.3, noise_shape=None, seed=None))
 
     model.add(Dense(50, activation='relu', kernel_regularizer=l2(0.01)))
@@ -46,8 +57,10 @@ def test(test_data, checkpoint, size_of_sample):
     model.summary()
 
     pred = model.predict_classes(x_ts).reshape(-1)
-    acc, f1 = accuracy_score(y_true=y_ts, y_pred=pred), f1_score(y_true=y_ts, y_pred=pred, average=None)
-    print("Test dataset: acc:{:5f} and f1:{:5f} and {:5f}".format(acc, f1[0], f1[1]))
+    acc = accuracy_score(y_true=y_ts, y_pred=pred)
+    cm = confusion_matrix(y_true=y_ts, y_pred=pred)
+    print(cm)
+    print("Test dataset: acc:{:5f}".format(acc))
 
 def predict(inference_data, checkpoint, size_of_sample):
     x_inf = inference_data
