@@ -59,8 +59,10 @@ def test(test_data, checkpoint, size_of_sample):
     pred = model.predict_classes(x_ts).reshape(-1)
     acc = accuracy_score(y_true=y_ts, y_pred=pred)
     cm = confusion_matrix(y_true=y_ts, y_pred=pred)
+    f1 = f1_score(y_true=y_ts, y_pred=pred, average=None)
     print(cm)
     print("Test dataset: acc:{:5f}".format(acc))
+    print("F1 score", f1)
 
 def predict(inference_data, checkpoint, size_of_sample):
     x_inf = inference_data

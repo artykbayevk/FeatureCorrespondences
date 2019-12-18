@@ -63,9 +63,8 @@ class HeuristicMethod:
                 if ratio<2.0:
                     count+=1
 
-            print("{:.2f} % out of {} correspondences are passed treshold".format(count*100/P.shape[0], P.shape[0]))
+            # print("{:.2f} % out of {} correspondences are passed treshold".format(count*100/P.shape[0], P.shape[0]))
             self.df.iloc[idx, -2] = count*100/P.shape[0]
-
         # setting values on term of their count of
         plt.boxplot(self.df['value'])
         plt.show()
@@ -73,11 +72,14 @@ class HeuristicMethod:
         plt.hist(self.df['value'])
         plt.show()
 
-        q1, q3 = np.percentile(self.df['value'], [25, 75])
-        iqr = q3 - q1
 
-        upper_bound = q3 + (1.5 * iqr)
-        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x > upper_bound else 0.0)
+        max_value = np.max(self.df["value"])
+        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x > max_value - 0.5 else 0.0)
+        print("{} num samples, {} samples {:.2f}% best and {} samples {:.2f}% nor-best".format(
+            self.df.shape[0], np.sum(self.df['class']),np.sum(self.df['class'])*100/self.df.shape[0],
+            self.df.shape[0] - np.sum(self.df['class']), (self.df.shape[0] - np.sum(self.df['class']))*100/self.df.shape[0]
+        ))
+
 
     def save(self, out_path):
         df = self.df.drop("value", axis=1)
@@ -87,7 +89,13 @@ class HeuristicMethod:
 
 folder_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_1\experiment'
 HR = HeuristicMethod(
-    folder_path, size_of_sample=280, artificial_data_count = 1000,artifical_data=True
+    folder_path, size_of_sample=280, artificial_data_count = 1000,artifical_data=False
 )
 HR.assign_values()
 HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
+
+
+# TODO found 1000 optimal solutions
+# TODO use heuristic method for labeling them
+# TODO ratio between BEST/NOT BEST will be 1/3
+

@@ -55,7 +55,7 @@ def get_divided_data(path, ts_size, val_size, dummy_mult, ownScaler = True):
     return (x_tr, y_tr), (x_val, y_val), (x_ts, y_ts), size_of_sample, main_scaler
 
 
-def get_pair_features(folder, size_of_sample, ownScaler = True, artificial_data=False):
+def get_pair_features(folder, size_of_sample, scaler,ownScaler = False, artificial_data=False):
     list_of_files = glob.glob(os.path.join(folder, "*.csv"))
     dataset = np.zeros((len(list_of_files), size_of_sample))
     for idx, item in enumerate(list_of_files):
@@ -89,26 +89,12 @@ def get_pair_features(folder, size_of_sample, ownScaler = True, artificial_data=
         df[:, 1] = df[:, 1] - mean_Y
         df = df.reshape(df.shape[0],280)
         return df
+    dataset = scaler.transform(dataset)
     return dataset
 
 def merge_dataset(artificial_data_path, ts_size, val_size, dummy_mult, stereo_images_folder,mergeScale = True):
     artificial_data = pd.read_csv(artificial_data_path, header=None).values
     size_of_sample = (artificial_data.shape[1] - 1)*dummy_mult
-    # artificial_data = transform_samples(artificial_data, dummy_mult, size_of_sample)
-    #
-    # if mergeScale == False:
-    #     ### artificial data
-    #     df = np.copy(artificial_data[:, :-1]).reshape(artificial_data.shape[0], int(artificial_data[:, :-1].shape[1] / 2), 2)
-    #     min = df.min()
-    #     max = df.max()
-    #     df = np.interp(df, (min, max), (0, 100))
-    #     mean_X = df[:, :, 0].mean()
-    #     mean_Y = df[:, :, 1].mean()
-    #     df[:, :, 0] = df[:, :, 0] - mean_X
-    #     df[:, :, 1] = df[:, :, 1] - mean_Y
-    #     df = df.reshape(artificial_data.shape[0], artificial_data[:, :-1].shape[1])
-    #     X_raw = np.copy(df)
-    #     Y_raw = artificial_data[:, -1]
 
     ### stereo data
     list_of_stereo = glob.glob(os.path.join(stereo_images_folder, "*.csv"))
@@ -117,16 +103,20 @@ def merge_dataset(artificial_data_path, ts_size, val_size, dummy_mult, stereo_im
         tmp_read_data = pd.read_csv(file, header=None, delimiter=',')
         stereo.append(tmp_read_data)
     stereo_dataset = pd.concat(stereo)
-
+    # main_scaler = StandardScaler().fit(dataset[:, :-1])
     target = stereo_dataset[280]
-    df = np.copy(stereo_dataset.drop(280, axis=1)).reshape(stereo_dataset.shape[0], int((stereo_dataset.shape[1] -1)/ 2), 2)
-    df = np.interp(df, (df.min(), df.max()), (0, 100))
-    mean_X = df[:, 0].mean()
-    mean_Y = df[:, 1].mean()
 
-    df[:, 0] = df[:, 0] - mean_X
-    df[:, 1] = df[:, 1] - mean_Y
-    df = df.reshape(df.shape[0], 280)
+    # df = np.copy(stereo_dataset.drop(280, axis=1)).reshape(stereo_dataset.shape[0], int((stereo_dataset.shape[1] -1)/ 2), 2)
+
+    main_scaler = StandardScaler().fit(stereo_dataset.drop(280, axis=1))
+    df = main_scaler.transform(stereo_dataset.drop(280, axis=1))
+    # df = np.interp(df, (df.min(), df.max()), (0, 100))
+    # mean_X = df[:, 0].mean()
+    # mean_Y = df[:, 1].mean()
+    #
+    # df[:, 0] = df[:, 0] - mean_X
+    # df[:, 1] = df[:, 1] - mean_Y
+    # df = df.reshape(df.shape[0], 280)
 
 
 
@@ -142,6 +132,6 @@ def merge_dataset(artificial_data_path, ts_size, val_size, dummy_mult, stereo_im
     test_data = (x_ts, y_ts)
 
     print(" Dataset size: \nTrain data:{}\nVal data:{}\nTest data:{}".format(train_data[0].shape, val_data[0].shape, test_data[0].shape, ))
-    return train_data, val_data, test_data, size_of_sample
+    return train_data, val_data, test_data, size_of_sample, main_scaler
 
 

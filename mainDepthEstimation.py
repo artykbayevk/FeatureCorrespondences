@@ -8,7 +8,7 @@ from scripts.Triangulation.Depth import Triangulation
 from scripts.Triangulation.HausdorffDist import Hausdorff
 
 class Stereo:
-    def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, opt_solutions = 0):
+    def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, n_sols = 200):
         folder = glob.glob(os.path.join(path,'*'))
         '''
             collecting data from folder and put into folder_data variable
@@ -58,6 +58,8 @@ class Stereo:
         if not os.path.exists(self.exp_dir):
             os.makedirs(self.exp_dir)
 
+        self.limit_solutions = str(n_sols)
+
 
 
     def compute_ground_truth(self):
@@ -86,7 +88,8 @@ class Stereo:
             ['julia', r'C:\Users\user\Documents\Research\FeatureCorrespondenes\scripts\DepthEstimation.jl',
              self.img1_path,
              self.img2_path,
-             self.main_path],
+             self.main_path,
+             self.limit_solutions],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
@@ -122,10 +125,11 @@ class Stereo:
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 stereo = Stereo(
-    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_22',
+    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_21',
     n_components = int(CONFIG["SIFTFeatures"]),
     plot_ground_truth=False,
-    show_imgs = True
+    show_imgs = True,
+    n_sols=10000
 )
 stereo.compute_ground_truth()
 stereo.julia_method(run_julia = True)

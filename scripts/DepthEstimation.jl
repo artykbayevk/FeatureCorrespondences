@@ -94,7 +94,7 @@ cost = pairwise(Euclidean(), P_points, Q_points; dims=1);
 P = ones(size(P_points,1));
 Q = ones(size(Q_points,1));
 
-solCount = 100
+solCount = parse(Int32,ARGS[4])
 # m = JuMP.direct_model(Gurobi.Optimizer(PoolSearchMode=2, PoolSolutions=solCount, SolutionNumber=0,PoolGap = 0.001))
 m = JuMP.direct_model(Gurobi.Optimizer(PoolSearchMode=2, PoolSolutions=solCount, SolutionNumber=0));
 
