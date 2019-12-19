@@ -92,6 +92,14 @@ def get_pair_features(folder, size_of_sample, scaler,ownScaler = False, artifici
     dataset = scaler.transform(dataset)
     return dataset
 
+def new_get_pair_features(file, scaler):
+    dataset = pd.read_csv(file,sep=",", header=None, index_col=None)
+    X = scaler.transform(dataset.iloc[:,:-1])
+    Y = dataset.iloc[:,-1]
+
+    return X,Y
+
+
 def merge_dataset(artificial_data_path, ts_size, val_size, dummy_mult, stereo_images_folder,mergeScale = True):
     artificial_data = pd.read_csv(artificial_data_path, header=None).values
     size_of_sample = (artificial_data.shape[1] - 1)*dummy_mult

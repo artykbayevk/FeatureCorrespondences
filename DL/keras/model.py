@@ -4,6 +4,13 @@ from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras import optimizers
+
+# from keras.layers import Dense, Dropout
+# from keras.models import Sequential
+# from keras.regularizers import l2
+# from keras import optimizers
+
+
 from sklearn.metrics import f1_score, accuracy_score
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import confusion_matrix
@@ -15,15 +22,6 @@ def dl_model(input_size):
     model.add(Dropout(0.3, noise_shape=None, seed=None))
 
     model.add(Dense(100, activation='relu', kernel_regularizer=l2(0.01)))
-    model.add(Dropout(0.3, noise_shape=None, seed=None))
-
-    model.add(Dense(50, activation='relu', kernel_regularizer=l2(0.01)))
-    model.add(Dropout(0.3, noise_shape=None, seed=None))
-
-    model.add(Dense(100, activation='relu', kernel_regularizer=l2(0.01)))
-    model.add(Dropout(0.3, noise_shape=None, seed=None))
-
-    model.add(Dense(75, activation='relu', kernel_regularizer=l2(0.01)))
     model.add(Dropout(0.3, noise_shape=None, seed=None))
 
     model.add(Dense(50, activation='relu', kernel_regularizer=l2(0.01)))
@@ -64,11 +62,12 @@ def test(test_data, checkpoint, size_of_sample):
     print("Test dataset: acc:{:5f}".format(acc))
     print("F1 score", f1)
 
-def predict(inference_data, checkpoint, size_of_sample):
+def predict(inference_data, target,checkpoint, size_of_sample):
     x_inf = inference_data
     model = dl_model(input_size=size_of_sample)
     model.load_weights(checkpoint)
     model.summary()
 
     pred = model.predict_classes(x_inf)
-    return pred
+    cm = confusion_matrix(y_true=target, y_pred=pred)
+    return cm
