@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from glob import glob
 import matplotlib.pyplot as plt
+from numpy import random,argsort,sqrt
 from scipy.spatial.distance import cdist
 np.random.seed(42)
 
@@ -60,7 +61,7 @@ class HeuristicMethod:
                     ratio = dists[1]/dists[0]
                 except:
                     ratio = 0
-                if ratio<2.0:
+                if ratio<=1.50:
                     count+=1
 
             # print("{:.2f} % out of {} correspondences are passed treshold".format(count*100/P.shape[0], P.shape[0]))
@@ -74,12 +75,60 @@ class HeuristicMethod:
 
 
         max_value = np.max(self.df["value"])
-        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x > max_value - 0.5 else 0.0)
+        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x >= max_value - 1.0 else 0.0)
         print("{} num samples, {} samples {:.2f}% best and {} samples {:.2f}% nor-best".format(
             self.df.shape[0], np.sum(self.df['class']),np.sum(self.df['class'])*100/self.df.shape[0],
             self.df.shape[0] - np.sum(self.df['class']), (self.df.shape[0] - np.sum(self.df['class']))*100/self.df.shape[0]
         ))
 
+    def rewrited_assign_values(self, n_neigbors):
+        def knn_search(x, D, K):
+            """ find K nearest neighbours of data among D """
+            ndata = D.shape[1]
+            K = K if K < ndata else ndata
+            # euclidean distances from the other points
+            sqd = sqrt(((D - x[:, :ndata]) ** 2).sum(axis=0))
+            idx = argsort(sqd)  # sorting
+            # return the indexes of K nearest neighbours
+            return idx[:K+1]
+
+
+        for idx, sample in self.df.iterrows():
+            sample_ = np.array(sorted(sample.values[:-2].reshape(70, 4), key=lambda k: [k[0], k[1]], reverse=True))
+            P = sample_[:, :2]  # P figure x and y
+            Q = sample_[:, 2:]  # Q figure x and
+
+            p1_to_p2 = cdist(P,P)
+            q1_to_q2 = cdist(Q,Q)
+
+            ## ranking algorithm implementation
+            ## found Q - quality of mapping for each point
+            Q_S = 0
+            for p_id, p in enumerate(P):
+                D = P.T
+                x = p.reshape(-1,1)
+                k_points = knn_search(x, P.T, n_neigbors)
+                N_P = D[:, k_points]
+                M_P = Q.T[:,k_points]
+
+                D_N_P = np.sum(cdist(N_P,N_P))/n_neigbors**2
+                D_M_P = np.sum(cdist(M_P,M_P))/n_neigbors**2
+                D_Np_Mp = np.abs(D_N_P-D_M_P)
+                Q_np_Mp = 1/(1+D_Np_Mp)
+                Q_S+=Q_np_Mp
+            # print(Q_S)
+            self.df.iloc[idx, -2] = Q_S
+        plt.boxplot(self.df['value'])
+        plt.show()
+
+        max_value = np.max(self.df["value"])
+        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value else 0.0)
+        print("{} num samples, {} samples {:.2f}% best and {} samples {:.2f}% nor-best".format(
+            self.df.shape[0], np.sum(self.df['class']), np.sum(self.df['class']) * 100 / self.df.shape[0],
+                                                        self.df.shape[0] - np.sum(self.df['class']),
+                                                        (self.df.shape[0] - np.sum(self.df['class'])) * 100 /
+                                                        self.df.shape[0]
+        ))
 
     def save(self, out_path):
         df = self.df.drop("value", axis=1)
@@ -87,12 +136,13 @@ class HeuristicMethod:
         print("Saved")
 
 
-folder_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_1\experiment'
+folder_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_22\experiment'
 HR = HeuristicMethod(
     folder_path, size_of_sample=280, artificial_data_count = 1000,artifical_data=False
 )
-HR.assign_values()
-HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
+HR.rewrited_assign_values(n_neigbors = 5)
+# HR.assign_values()
+# HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
 
 
 # TODO found 1000 optimal solutions
