@@ -105,7 +105,10 @@ DL.data_load()
 # DL.train()
 
 # evaluate process
-# DL.evaluate()
+DL.evaluate()
 
 # inference on real data
-# DL.inference(SOLUTION_PATH)
+DL.inference(SOLUTION_PATH)
+
+# TODO train RNN
+# TODO train only one pair
