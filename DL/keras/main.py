@@ -16,6 +16,7 @@ warnings.filterwarnings("ignore")
 
 # %%
 
+
 class Model:
     def __init__(self, data_folder, phase, typeOfModel, checkpoint):
         self.data_folder = data_folder
@@ -46,6 +47,12 @@ class Model:
         self.train_data = (X_train, Y_train)
         self.test_data = (X_test, Y_test)
         self.full_data = (X,Y)
+
+    def train_cnn(self):
+        train_X, train_Y = self.train_data
+        test_X, test_Y = self.test_data
+
+
     def train(self):
         print("Model configured and ready for train")
         pipeline = Pipeline(
@@ -65,8 +72,7 @@ class Model:
         model.fit(self.train_data[0], self.train_data[1])
         print("Best parameters of model: ", model.best_params_)
         dump(model, self.checkpoint)
-    def train_dl(self):
-        pass
+
     def evaluate(self):
         model = load(self.checkpoint)
         X = self.test_data[0]
@@ -100,15 +106,19 @@ DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 
 # in inference dont need to collect data
 DL.data_load()
+DL.train_cnn()
 
+
+
+'''
+    SIMPLE MLP/DNN/FCNetwork
+'''
 # train process
 # DL.train()
 
 # evaluate process
-DL.evaluate()
+# DL.evaluate()
 
 # inference on real data
-DL.inference(SOLUTION_PATH)
+# DL.inference(SOLUTION_PATH)
 
-# TODO train RNN
-# TODO train only one pair

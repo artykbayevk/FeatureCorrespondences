@@ -2,3 +2,7 @@ numpy
 pandas
 matplotlib
 scipy
+sklearn
+tensorlfow==1.14.0
+keras
+joblib
