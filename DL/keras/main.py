@@ -13,6 +13,14 @@ from sklearn.metrics import f1_score
 from joblib import dump, load
 from sklearn.metrics import confusion_matrix
 warnings.filterwarnings("ignore")
+from keras.layers import Dense, Dropout
+from keras.models import Sequential
+from keras.regularizers import l2
+from keras import optimizers
+from keras.layers.convolutional import Conv1D
+from keras.layers.pooling import MaxPool1D, GlobalAveragePooling1D
+from keras.layers import Dropout
+import keras
 
 # %%
 
@@ -43,14 +51,57 @@ class Model:
             X_test = X[test_idx]
             Y_test = Y[test_idx]
 
-        print(X_train.shape, Y_train.shape, X_test.shape, Y_test.shape)
         self.train_data = (X_train, Y_train)
         self.test_data = (X_test, Y_test)
         self.full_data = (X,Y)
 
+    def model(self):
+        model = keras.models.Sequential()
+        model.add(Conv1D(100, kernel_size=2, strides=2, input_shape=(200, 2),activation='relu'))
+        model.add(Conv1D(100, kernel_size=1, strides=1, activation='relu'))
+        model.add(MaxPool1D(2))
+        model.add(Conv1D(50, kernel_size=1, strides=1, activation='relu'))
+        model.add(Conv1D(25, kernel_size=1, strides=1, activation='relu'))
+        model.add(MaxPool1D(2))
+        model.add(GlobalAveragePooling1D())
+        model.add(Dropout(0.5))
+        model.add(Dense(1, activation='softmax'))
+        return model
+
+
     def train_cnn(self):
         train_X, train_Y = self.train_data
         test_X, test_Y = self.test_data
+        def func(sample):
+            x_indices = np.arange(0, sample.shape[0], 2)
+            y_indices = np.arange(1, sample.shape[0], 2)
+            x = sample[x_indices]
+            y = sample[y_indices]
+            upd_sample = np.array([x,y]).T
+            return upd_sample
+        train_X = np.apply_along_axis(func, 1, train_X)
+        test_X = np.apply_along_axis(func, 1, test_X)
+        print(train_X.shape, train_Y.shape, test_X.shape, test_Y.shape)
+
+        clf = self.model()
+        clf.compile(loss='binary_crossentropy',
+                        optimizer='adam', metrics=['accuracy'])
+        callbacks_list = [
+            keras.callbacks.ModelCheckpoint(
+                filepath='best_model.{epoch:02d}-{val_loss:.2f}.h5',
+                monitor='val_loss', save_best_only=True),
+            keras.callbacks.EarlyStopping(monitor='acc', patience=1)
+        ]
+        BATCH_SIZE = 100
+        EPOCHS = 1000
+
+        history = clf.fit(train_X,
+                              train_Y,
+                              batch_size=BATCH_SIZE,
+                              epochs=EPOCHS,
+                              callbacks=callbacks_list,
+                              validation_split=0.2,
+                              verbose=1)
 
 
     def train(self):
