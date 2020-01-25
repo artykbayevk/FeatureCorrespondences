@@ -8,7 +8,7 @@ from scripts.Triangulation.Depth import Triangulation
 from scripts.Triangulation.HausdorffDist import Hausdorff
 
 class Stereo:
-    def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, n_sols = 200):
+    def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, n_sols = 100):
         folder = glob.glob(os.path.join(path,'*'))
         '''
             collecting data from folder and put into folder_data variable
@@ -132,7 +132,7 @@ stereo = Stereo(
     n_sols=1000
 )
 stereo.compute_ground_truth()
-stereo.julia_method(run_julia = True)
+# stereo.julia_method(run_julia = True)
 
 
 
