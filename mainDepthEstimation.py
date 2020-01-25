@@ -125,14 +125,14 @@ class Stereo:
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 stereo = Stereo(
-    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_22',
+    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_3',
     n_components = int(CONFIG["SIFTFeatures"]),
-    plot_ground_truth=False,
+    plot_ground_truth=True,
     show_imgs = True,
-    n_sols=1000
+    n_sols=100
 )
 stereo.compute_ground_truth()
-# stereo.julia_method(run_julia = True)
+stereo.julia_method(run_julia = True)
 
 
 

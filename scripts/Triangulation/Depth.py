@@ -1,6 +1,8 @@
 #%%
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances_argmin_min
 import pandas as pd
 import numpy as np
 import sys
@@ -25,11 +27,35 @@ class Triangulation:
         # cv2.imwrite(os.path.join(base, "left_loaded.png"), self.img1)
         # cv2.imwrite(os.path.join(base, "right_loaded.png"), self.img2)
 
+    def findK_centroids(self, features, clusters):
+        class InnerFeatures:
+            def __init__(self, kps, des, pos):
+                self.kps = kps
+                self.des = des
+                self.pos = pos
+
+        kmeans = KMeans(n_clusters=clusters)
+
+        pts = np.array(features.pos)
+        kps = np.array(features.kps)
+        des = np.array(features.des)
+
+        kmeans.fit(pts)
+        m_clusters = kmeans.labels_.tolist()
+        centers = np.array(kmeans.cluster_centers_)
+
+        closest, _ = pairwise_distances_argmin_min(kmeans.cluster_centers_, pts)
+
+        assert len(set(closest)) == clusters
+
+        result = InnerFeatures(kps[closest], des[closest], pts[closest])
+        return result
+
     def findRootSIFTFeatures(self, n_components = None):
 
         class RootSIFT:
             def __init__(self):
-                self.extractor = cv2.xfeatures2d.SIFT_create(n_components) if n_components != None else cv2.xfeatures2d.SIFT_create()
+                self.extractor = cv2.xfeatures2d.SIFT_create()
             def compute(self, image, kps, eps=1e-7):
                 (kps, descs) = self.extractor.compute(image, kps)
                 if len(kps) == 0:
@@ -46,7 +72,7 @@ class Triangulation:
                 self.pos = pos
 
         def innerRootSIFT(img):
-            sift = cv2.xfeatures2d.SIFT_create(n_components) if n_components != None else cv2.xfeatures2d.SIFT_create()
+            sift = cv2.xfeatures2d.SIFT_create()
             (kps, descs) = sift.detectAndCompute(img, None)
 
             rs = RootSIFT()
@@ -59,7 +85,11 @@ class Triangulation:
         kps2, desc2, pos2 = innerRootSIFT(self.img2)
         self.feature_1 = InnerFeatures(kps1, desc1, pos1)
         self.feature_2 = InnerFeatures(kps2, desc2, pos2)
-        stop = 1
+
+        ## next step is finding 100 CENTROIDS,
+        self.feature_1 = self.findK_centroids(self.feature_1, n_components)
+        self.feature_2 = self.findK_centroids(self.feature_2, n_components)
+
 
     def matchingRootSIFTFeatures(self, pathToCsv=None ,fromJulia=False):
         if fromJulia:
@@ -90,7 +120,7 @@ class Triangulation:
             pts2 = []
 
             for i, (m, n) in enumerate(matches):
-                if m.distance < 0.8 * n.distance:
+                if m.distance < 0.85 * n.distance:
                     good.append(m)
                     pts2.append(self.feature_2.kps[m.trainIdx].pt)
                     pts1.append(self.feature_1.kps[m.queryIdx].pt)
@@ -98,7 +128,6 @@ class Triangulation:
             self.match_pts1 = np.round(pts1)
             self.match_pts2 = np.round(pts2)
             self.matches = good
-        # print("There are {} matches".format(self.match_pts1.shape[0]))
 
     def drawMathces(self, path):
         OutImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,outImg=None)

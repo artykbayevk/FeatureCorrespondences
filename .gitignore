@@ -2,4 +2,13 @@
 .DS_Store
 .ipynb_checkpoints
 /.cph_tmplvskt9ya/pkg-ffmpeg-4.0-h01ea3c9_0.tar.zst
-data
+data/CorelDB
+data/image.orig
+data/image.vary.jpg
+data/stereo
+data/feature_evaluation_data
+data/artificial
+data/dense
+data/pair
+data/DepthEstimationSummary.pdf
+data/DepthEstimationSummary.xlsx

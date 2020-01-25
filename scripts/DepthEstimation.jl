@@ -13,6 +13,8 @@ using JSON
 py"""
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances_argmin_min
 import numpy as np
 import sys
 import cv2
@@ -26,10 +28,34 @@ class Triangulation:
         # cv2.imwrite(os.path.join(base, "left_loaded.png"), self.img1)
         # cv2.imwrite(os.path.join(base, "right_loaded.png"), self.img2)
 
+    def findK_centroids(self, features, clusters):
+        class InnerFeatures:
+            def __init__(self, kps, des, pos):
+                self.kps = kps
+                self.des = des
+                self.pos = pos
+
+        kmeans = KMeans(n_clusters=clusters)
+
+        pts = np.array(features.pos)
+        kps = np.array(features.kps)
+        des = np.array(features.des)
+
+        kmeans.fit(pts)
+        m_clusters = kmeans.labels_.tolist()
+        centers = np.array(kmeans.cluster_centers_)
+
+        closest, _ = pairwise_distances_argmin_min(kmeans.cluster_centers_, pts)
+
+        assert len(set(closest)) == clusters
+
+        result = InnerFeatures(kps[closest], des[closest], pts[closest])
+        return result
+
     def findRootSIFTFeatures(self, n_components = None):
         class RootSIFT:
             def __init__(self):
-                self.extractor = cv2.xfeatures2d.SIFT_create(n_components) if n_components != None else cv2.xfeatures2d.SIFT_create()
+                self.extractor =  cv2.xfeatures2d.SIFT_create()
             def compute(self, image, kps, eps=1e-7):
                 (kps, descs) = self.extractor.compute(image, kps)
                 if len(kps) == 0:
@@ -46,7 +72,7 @@ class Triangulation:
                 self.pos = pos
 
         def innerRootSIFT(img):
-            sift = cv2.xfeatures2d.SIFT_create(n_components) if n_components != None else cv2.xfeatures2d.SIFT_create()
+            sift = cv2.xfeatures2d.SIFT_create()
             (kps, descs) = sift.detectAndCompute(img, None)
 
             rs = RootSIFT()
@@ -59,6 +85,12 @@ class Triangulation:
         kps2, desc2, pos2 = innerRootSIFT(self.img2)
         self.feature_1 = InnerFeatures(kps1, desc1, pos1)
         self.feature_2 = InnerFeatures(kps2, desc2, pos2)
+
+        ## TOP K CENTROIDS
+        self.feature_1 = self.findK_centroids(self.feature_1, n_components)
+        self.feature_2 = self.findK_centroids(self.feature_2, n_components)
+
+
     def drawMatches(self, path):
         self.outImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,outImg=None)
         cv2.imwrite(path, self.outImage)
@@ -80,8 +112,8 @@ img2_path = ARGS[2]
 py"scene.load_imgs"(img1_path, img2_path)
 py"scene.findRootSIFTFeatures"(n_components=n_components)
 
-pts1 = py"scene.feature_1.pos"
-pts2 = py"scene.feature_2.pos";
+pts1 = py"list(scene.feature_1.pos)"
+pts2 = py"list(scene.feature_2.pos)";
 
 P_points = hcat(pts1...)';
 Q_points = hcat(pts2...)';
@@ -112,7 +144,7 @@ for i in 0:(solCount-1)
     setparam!(m.moi_backend.inner,"SolutionNumber", i)
     xn = Gurobi.get_dblattrarray(m.moi_backend.inner, "Xn", 1, length(X))
     xn_val = Gurobi.get_dblattr(m.moi_backend.inner, "PoolObjVal")
-    if(round(xn_val, digits=1) != round(obj, digits=1))
+    if(round(xn_val, digits=0) != round(obj, digits=0))
         println(i , " solution(s) selected")
         # println(xn_val, " current objective value")
         break
