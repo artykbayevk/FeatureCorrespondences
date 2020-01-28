@@ -144,7 +144,10 @@ for i in 0:(solCount-1)
     setparam!(m.moi_backend.inner,"SolutionNumber", i)
     xn = Gurobi.get_dblattrarray(m.moi_backend.inner, "Xn", 1, length(X))
     xn_val = Gurobi.get_dblattr(m.moi_backend.inner, "PoolObjVal")
-    if(round(xn_val, digits=0) != round(obj, digits=0))
+    if(floor(xn_val) != floor(obj))
+        if floor(xn_val) - floor(obj) == 1 || floor(xn_val) - floor(obj) == 2
+            continue
+        end
         println(i , " solution(s) selected")
         # println(xn_val, " current objective value")
         break

@@ -120,7 +120,7 @@ class Triangulation:
             pts2 = []
 
             for i, (m, n) in enumerate(matches):
-                if m.distance < 0.85 * n.distance:
+                if m.distance < 0.90 * n.distance:
                     good.append(m)
                     pts2.append(self.feature_2.kps[m.trainIdx].pt)
                     pts1.append(self.feature_1.kps[m.queryIdx].pt)
@@ -128,6 +128,8 @@ class Triangulation:
             self.match_pts1 = np.round(pts1)
             self.match_pts2 = np.round(pts2)
             self.matches = good
+            print("Opencv Matched found :{} feature correspondences".format(len(self.matches)))
+
 
     def drawMathces(self, path):
         OutImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,outImg=None)
