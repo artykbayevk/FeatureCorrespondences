@@ -12,3 +12,4 @@ data/dense
 data/pair
 data/DepthEstimationSummary.pdf
 data/DepthEstimationSummary.xlsx
+*.pyc
