@@ -54,6 +54,7 @@ class Model:
         self.train_data = (X_train, Y_train)
         self.test_data = (X_test, Y_test)
         self.full_data = (X,Y)
+        stop = 1
 
     def model(self):
         model = keras.models.Sequential()
@@ -157,7 +158,7 @@ DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 
 # in inference dont need to collect data
 DL.data_load()
-DL.train_cnn()
+# DL.train_cnn()
 
 
 
