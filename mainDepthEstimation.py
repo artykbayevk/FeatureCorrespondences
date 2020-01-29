@@ -125,7 +125,7 @@ class Stereo:
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 stereo = Stereo(
-    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_4',
+    path = r'C:\Users\user\Documёёents\Research\FeatureCorrespondenes\data\dataset\pair_9',
     n_components = int(CONFIG["SIFTFeatures"]),
     plot_ground_truth=False,
     show_imgs = False,

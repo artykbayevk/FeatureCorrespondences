@@ -72,22 +72,22 @@ class HeuristicMethod:
         '''
             setting values in term of their maximum value and outliers
         '''
-        # q1, q3 = np.percentile(dataset, [25, 75])
-        # iqr = q3 - q1
-        # upper_bound = q3 + (1.5 * iqr)
-        #
-        # max_value = np.max(self.df["value"])
-        # self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x > upper_bound else 0.0)
+        q1, q3 = np.percentile(dataset, [25, 75])
+        iqr = q3 - q1
+        upper_bound = q3 + (1.5 * iqr)
+
+        max_value = np.max(self.df["value"])
+        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x > upper_bound else 0.0)
 
         '''
             setting values in term of their top 10-15%
         '''
-        self.df = self.df.sort_values("value", ascending=False)
-
-        top = 10
-        top_10 = int(np.ceil(self.df.shape[0]*top/100))
-        self.df["class"].iloc[range(0,top_10)] = 1.0
-        self.df['rank_values'] = self.df['value'].rank(pct=True)
+        # self.df = self.df.sort_values("value", ascending=False)
+        #
+        # top = 20
+        # top_10 = int(np.ceil(self.df.shape[0]*top/100))
+        # self.df["class"].iloc[range(0,top_10)] = 1.0
+        # self.df['rank_values'] = self.df['value'].rank(pct=True)
         # print(self.df)
 
         print("{} - {}/{}".format(self.df.shape[0],np.sum(self.df['class']),  self.df.shape[0] - np.sum(self.df['class'])))
@@ -107,7 +107,7 @@ class HeuristicMethod:
 # TODO use heuristic method for labeling them
 # TODO ratio between BEST/NOT BEST will be 1/3
 
-for i in range(1,23):
+for i in range(1,10):
     sol_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_{}\experiment'.format(str(i))
     print("Solution: {}".format(str(i)))
     HR = HeuristicMethod(sol_path, size_of_sample=400)

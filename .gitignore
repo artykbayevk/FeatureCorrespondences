@@ -16,3 +16,5 @@ data/DepthEstimationSummary.xlsx
 *.pyc
 *.pdf
 *.xlsx
+matchedPoints*
+data/dataset/stereo_heuristic_data/*.csv

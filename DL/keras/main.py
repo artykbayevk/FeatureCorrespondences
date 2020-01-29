@@ -166,7 +166,7 @@ DL.data_load()
     SIMPLE MLP/DNN/FCNetwork
 '''
 # train process
-# DL.train()
+DL.train()
 
 # evaluate process
 # DL.evaluate()
