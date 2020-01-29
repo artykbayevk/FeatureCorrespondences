@@ -10,6 +10,7 @@ data/feature_evaluation_data
 data/artificial
 data/dense
 data/pair
+data/backupData/test
 data/DepthEstimationSummary.pdf
 data/DepthEstimationSummary.xlsx
 *.pyc
