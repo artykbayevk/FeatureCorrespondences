@@ -21,6 +21,7 @@ from keras.layers.convolutional import Conv1D
 from keras.layers.pooling import MaxPool1D, GlobalAveragePooling1D
 from keras.layers import Dropout
 import keras
+from scripts.email import send_email
 
 # %%
 
@@ -168,8 +169,16 @@ DL.data_load()
 # train process
 DL.train()
 
+send_email(
+    user="crm.kamalkhan@gmail.com",
+    pwd="Astana2019",
+    recipient="kamalkhan.artykbayev@nu.edu.kz",
+    subject="Deep Learning Model",
+    body="Its ready"
+)
+
 # evaluate process
-# DL.evaluate()
+DL.evaluate()
 
 # inference on real data
 # DL.inference(SOLUTION_PATH)
