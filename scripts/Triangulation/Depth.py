@@ -27,7 +27,14 @@ class Triangulation:
         # cv2.imwrite(os.path.join(base, "left_loaded.png"), self.img1)
         # cv2.imwrite(os.path.join(base, "right_loaded.png"), self.img2)
 
-    def findK_centroids(self, features, clusters):
+    def findK_centroids_closest(self, features, clusters):
+        """
+        This function just produce closest points for centroids
+
+        :param features:
+        :param clusters:
+        :return:
+        """
         class InnerFeatures:
             def __init__(self, kps, des, pos):
                 self.kps = kps
@@ -50,6 +57,56 @@ class Triangulation:
 
         result = InnerFeatures(kps[closest], des[closest], pts[closest])
         return result
+
+    def findK_centroids_average(self, features, clusters):
+
+        """
+        produce centroids with their kps and descriptions
+
+        :param features:
+        :param clusters:
+        :return:
+        """
+        class InnerFeatures:
+            def __init__(self, kps, des, pos):
+                self.kps = kps
+                self.des = des
+                self.pos = pos
+        kmeans = KMeans(n_clusters=clusters)
+
+        pts = np.array(features.pos)
+        kps = np.array(features.kps)
+        des = np.array(features.des)
+
+        kmeans.fit(pts)
+        m_clusters = np.array(kmeans.labels_.tolist())
+        centers = np.array(kmeans.cluster_centers_)
+
+        # KeyPoint(x,y,size) -required
+
+        final_kps = []
+        final_des = []
+        final_pts = []
+
+        for cluster in range(clusters):
+            indices = np.where(m_clusters == cluster)
+            cluster_kps_size = np.mean(np.array([x.size for x in kps[indices]]))
+            cluster_des = des[indices]
+
+            average_des = np.mean(cluster_des, axis=0)
+            cluster_kps = cv2.KeyPoint(x=centers[cluster][0], y=centers[cluster][1], _size=cluster_kps_size)
+
+            final_kps.append(cluster_kps)
+            final_des.append(average_des)
+            final_pts.append([centers[cluster][0], centers[cluster][1]])
+
+        final_pts = np.array(final_pts)
+        final_des = np.array(final_des)
+        final_kps = np.array(final_kps)
+
+        result = InnerFeatures(kps = final_kps, des=final_des, pos = final_pts)
+        return result
+
 
     def findRootSIFTFeatures(self, n_components = None):
 
@@ -87,8 +144,8 @@ class Triangulation:
         self.feature_2 = InnerFeatures(kps2, desc2, pos2)
 
         ## next step is finding 100 CENTROIDS,
-        self.feature_1 = self.findK_centroids(self.feature_1, n_components)
-        self.feature_2 = self.findK_centroids(self.feature_2, n_components)
+        self.feature_1 = self.findK_centroids_average(self.feature_1, n_components)
+        self.feature_2 = self.findK_centroids_average(self.feature_2, n_components)
 
 
     def matchingRootSIFTFeatures(self, pathToCsv=None ,fromJulia=False):
@@ -129,7 +186,6 @@ class Triangulation:
             self.match_pts2 = np.round(pts2)
             self.matches = good
             print("Opencv Matched found :{} feature correspondences".format(len(self.matches)))
-
 
     def drawMathces(self, path):
         OutImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,outImg=None)

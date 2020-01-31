@@ -52,6 +52,47 @@ class Triangulation:
         result = InnerFeatures(kps[closest], des[closest], pts[closest])
         return result
 
+    def findK_centroids_average(self, features, clusters):
+        class InnerFeatures:
+            def __init__(self, kps, des, pos):
+                self.kps = kps
+                self.des = des
+                self.pos = pos
+        kmeans = KMeans(n_clusters=clusters)
+
+        pts = np.array(features.pos)
+        kps = np.array(features.kps)
+        des = np.array(features.des)
+
+        kmeans.fit(pts)
+        m_clusters = np.array(kmeans.labels_.tolist())
+        centers = np.array(kmeans.cluster_centers_)
+
+        # KeyPoint(x,y,size) -required
+
+        final_kps = []
+        final_des = []
+        final_pts = []
+
+        for cluster in range(clusters):
+            indices = np.where(m_clusters == cluster)
+            cluster_kps_size = np.mean(np.array([x.size for x in kps[indices]]))
+            cluster_des = des[indices]
+
+            average_des = np.mean(cluster_des, axis=0)
+            cluster_kps = cv2.KeyPoint(x=centers[cluster][0], y=centers[cluster][1], _size=cluster_kps_size)
+
+            final_kps.append(cluster_kps)
+            final_des.append(average_des)
+            final_pts.append([centers[cluster][0], centers[cluster][1]])
+
+        final_pts = np.array(final_pts)
+        final_des = np.array(final_des)
+        final_kps = np.array(final_kps)
+
+        result = InnerFeatures(kps = final_kps, des=final_des, pos = final_pts)
+        return result
+
     def findRootSIFTFeatures(self, n_components = None):
         class RootSIFT:
             def __init__(self):
@@ -87,9 +128,8 @@ class Triangulation:
         self.feature_2 = InnerFeatures(kps2, desc2, pos2)
 
         ## TOP K CENTROIDS
-        self.feature_1 = self.findK_centroids(self.feature_1, n_components)
-        self.feature_2 = self.findK_centroids(self.feature_2, n_components)
-
+        self.feature_1 = self.findK_centroids_average(self.feature_1, n_components)
+        self.feature_2 = self.findK_centroids_average(self.feature_2, n_components)
 
     def drawMatches(self, path):
         self.outImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,outImg=None)
@@ -146,10 +186,17 @@ for i in 0:(solCount-1)
     xn_val = Gurobi.get_dblattr(m.moi_backend.inner, "PoolObjVal")
     #if(floor(xn_val) != floor(obj))
     #    if floor(xn_val) - floor(obj) == 1 || floor(xn_val) - floor(obj) == 2
+    #        default = zeros(length(P),length(Q))
+    #        for i in 0:length(P)-1
+    #            default[i+1,:] = xn[(i*length(Q))+1:(i+1)*length(Q)]
+    #        end
+    #        solution_pool[i+1,:,:] = default
+    #        cnt+=1
     #        continue
     #    end
     #    println(i , " solution(s) selected")
-    #    # println(xn_val, " current objective value")
+    #    println(xn_val, " current objective value")
+    #    println(floor(xn_val)," ",floor(obj))
     #    break
     #end
     default = zeros(length(P),length(Q))

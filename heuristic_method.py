@@ -77,14 +77,14 @@ class HeuristicMethod:
         # upper_bound = q3 + (1.5 * iqr)
         #
         # max_value = np.max(self.df["value"])
-        # self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x > upper_bound else 0.0)
+        # self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x >= upper_bound else 0.0)
 
         '''
             setting values in term of their top 10-15%
         '''
         self.df = self.df.sort_values("value", ascending=False)
 
-        top = 30
+        top = 15
         top_10 = int(np.ceil(self.df.shape[0]*top/100))
         self.df["class"].iloc[range(0,top_10)] = 1.0
         self.df['rank_values'] = self.df['value'].rank(pct=True)

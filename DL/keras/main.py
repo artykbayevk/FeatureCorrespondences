@@ -21,9 +21,29 @@ from keras.layers.convolutional import Conv1D
 from keras.layers.pooling import MaxPool1D, GlobalAveragePooling1D
 from keras.layers import Dropout
 import keras
+from keras import backend as K
 from scripts.email import send_email
 
 # %%
+
+def recall_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+
+
+def precision_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+
+def f1_m(y_true, y_pred):
+    precision = precision_m(y_true, y_pred)
+    recall = recall_m(y_true, y_pred)
+    return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
 
 
 class Model:
@@ -55,7 +75,6 @@ class Model:
         self.train_data = (X_train, Y_train)
         self.test_data = (X_test, Y_test)
         self.full_data = (X,Y)
-        stop = 1
 
     def model(self):
         model = keras.models.Sequential()
@@ -67,9 +86,65 @@ class Model:
         model.add(MaxPool1D(2))
         model.add(GlobalAveragePooling1D())
         model.add(Dropout(0.5))
+
         model.add(Dense(1, activation='softmax'))
         return model
 
+    def dl_model(self,input_size):
+        model = Sequential()
+
+        model.add(Dense(100, activation='relu', input_dim=input_size, kernel_regularizer=l2(0.01)))
+        model.add(Dropout(0.3, noise_shape=None, seed=None))
+
+        model.add(Dense(100, activation='relu', kernel_regularizer=l2(0.01)))
+        model.add(Dropout(0.3, noise_shape=None, seed=None))
+
+        model.add(Dense(50, activation='relu', kernel_regularizer=l2(0.01)))
+        model.add(Dropout(0.3, noise_shape=None, seed=None))
+
+        model.add(Dense(25, activation='relu', kernel_regularizer=l2(0.01)))
+        model.add(Dropout(0.3, noise_shape=None, seed=None))
+
+        model.add(Dense(1, activation='sigmoid'))
+
+        return model
+    def train_dnn(self):
+        size_of_sample = self.full_data[0].shape[1]
+        model = self.dl_model(size_of_sample)
+        optim = optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
+        model.compile(loss='binary_crossentropy', optimizer=optim, metrics=['accuracy', "mae", "mse"])
+        model.summary()
+        model_output = model.fit(self.full_data[0], self.full_data[1], epochs=100, batch_size=10, verbose=1,validation_split=0.2)
+        model.save(self.checkpoint)
+
+    def evaluate_dnn(self):
+        size_of_sample = self.full_data[0].shape[1]
+        model = self.dl_model(input_size=size_of_sample)
+        model.load_weights(self.checkpoint)
+        optim = optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
+        model.compile(loss='binary_crossentropy', optimizer=optim, metrics=['accuracy', "mae", "mse"])
+        model.summary()
+
+        res = model.evaluate(self.test_data[0], self.test_data[1], verbose=0)
+        print(res)
+
+    def predict_pair(self, sols_path):
+        data = pd.read_csv(sols_path, header=None, delimiter=',')
+        X = data.drop(data.shape[1]-1, axis=1).values
+        Y = data[data.shape[1]-1].values.astype(int)
+
+        size_of_sample = self.full_data[0].shape[1]
+        model = self.dl_model(input_size=size_of_sample)
+        model.load_weights(self.checkpoint)
+        optim = optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
+        model.compile(loss='binary_crossentropy', optimizer=optim, metrics=['accuracy', "mae", "mse"])
+        model.summary()
+
+        pred = model.predict_classes(X).reshape(-1)
+        print("PRED")
+        print(pred)
+        print("ACTUAL")
+        print(Y)
 
     def train_cnn(self):
         train_X, train_Y = self.train_data
@@ -151,14 +226,18 @@ class Model:
 DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data'
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
-CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\filename.joblib" # or it can be keras.h5
-SOLUTION_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_13.csv'
+CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\keras_model.h5" # or it can be keras.h5
+SOLUTION_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_9.csv'
 
 
 DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 
 # in inference dont need to collect data
 DL.data_load()
+# DL.train_dnn()
+# DL.evaluate_dnn()
+DL.predict_pair(SOLUTION_PATH)
+
 # DL.train_cnn()
 
 
@@ -167,7 +246,7 @@ DL.data_load()
     SIMPLE MLP/DNN/FCNetwork
 '''
 # train process
-DL.train()
+# DL.train()
 
 send_email(
     user="crm.kamalkhan@gmail.com",
@@ -178,7 +257,7 @@ send_email(
 )
 
 # evaluate process
-DL.evaluate()
+# DL.evaluate()
 
 # inference on real data
 # DL.inference(SOLUTION_PATH)

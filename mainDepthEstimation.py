@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scripts.Triangulation.Depth import Triangulation
 from scripts.Triangulation.HausdorffDist import Hausdorff
+from scripts.email import send_email
 
 class Stereo:
     def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, n_sols = 100):
@@ -125,15 +126,21 @@ class Stereo:
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 stereo = Stereo(
-    path = r'C:\Users\user\Documёёents\Research\FeatureCorrespondenes\data\dataset\pair_9',
+    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_6',
     n_components = int(CONFIG["SIFTFeatures"]),
     plot_ground_truth=False,
     show_imgs = False,
-    n_sols=50
+    n_sols=500
 )
 
 stereo.compute_ground_truth()
-stereo.julia_method(run_julia = True)
-
-
+# stereo.julia_method(run_julia = True)
+stereo.compute_LP()
+send_email(
+    user="crm.kamalkhan@gmail.com",
+    pwd="Astana2019",
+    recipient="kamalkhan.artykbayev@nu.edu.kz",
+    subject="Deep Learning Model",
+    body="Its ready"
+)
 
