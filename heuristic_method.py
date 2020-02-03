@@ -8,8 +8,6 @@ from numpy import random,argsort,sqrt
 from scipy.spatial.distance import cdist
 np.random.seed(42)
 
-
-
 class HeuristicMethod:
     """
 
@@ -103,16 +101,9 @@ class HeuristicMethod:
 
 # HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
 
-
-# TODO found 1000 optimal solutions
-# TODO use heuristic method for labeling them
-# TODO ratio between BEST/NOT BEST will be 1/3
-
 for i in range(1,10):
     sol_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_{}\experiment'.format(str(i))
     print("Solution: {}".format(str(i)))
     HR = HeuristicMethod(sol_path, size_of_sample=400)
     HR.rewrited_assign_values(n_neigbors=2)
     HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_{}.csv'.format(str(i)))
-
-
