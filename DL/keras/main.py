@@ -236,14 +236,14 @@ DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 
 # in inference dont need to collect data
 DL.data_load()
-# DL.train_dnn()
+DL.train_dnn()
 DL.evaluate_dnn()
-DL.predict_pair(SOLUTION_PATH)
-DL.predict_pair(SOLUTION_PATH)
-DL.predict_pair(SOLUTION_PATH)
-DL.predict_pair(SOLUTION_PATH)
-DL.predict_pair(SOLUTION_PATH)
-DL.predict_pair(SOLUTION_PATH)
+# DL.predict_pair(SOLUTION_PATH)
+# DL.predict_pair(SOLUTION_PATH)
+# DL.predict_pair(SOLUTION_PATH)
+# DL.predict_pair(SOLUTION_PATH)
+# DL.predict_pair(SOLUTION_PATH)
+# DL.predict_pair(SOLUTION_PATH)
 
 # DL.train_cnn()
 
