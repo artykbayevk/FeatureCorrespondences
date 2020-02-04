@@ -95,12 +95,12 @@ class Model:
 
         model.add(Dense(100, activation='relu', input_dim=input_size, kernel_regularizer=l2(0.01)))
         model.add(Dropout(0.3, noise_shape=None, seed=None))
-
-        model.add(Dense(100, activation='relu', kernel_regularizer=l2(0.01)))
-        model.add(Dropout(0.3, noise_shape=None, seed=None))
-
-        model.add(Dense(50, activation='relu', kernel_regularizer=l2(0.01)))
-        model.add(Dropout(0.3, noise_shape=None, seed=None))
+        #
+        # model.add(Dense(100, activation='relu', kernel_regularizer=l2(0.01)))
+        # model.add(Dropout(0.3, noise_shape=None, seed=None))
+        #
+        # model.add(Dense(50, activation='relu', kernel_regularizer=l2(0.01)))
+        # model.add(Dropout(0.3, noise_shape=None, seed=None))
 
         model.add(Dense(25, activation='relu', kernel_regularizer=l2(0.01)))
         model.add(Dropout(0.3, noise_shape=None, seed=None))
@@ -114,7 +114,8 @@ class Model:
         optim = optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
         model.compile(loss='binary_crossentropy', optimizer=optim, metrics=['accuracy', "mae", "mse"])
         model.summary()
-        model_output = model.fit(self.full_data[0], self.full_data[1], epochs=100, batch_size=10, verbose=1,validation_split=0.2)
+        model_output = model.fit(self.full_data[0], self.full_data[1], epochs=100,
+                                 batch_size=10, verbose=1,validation_split=0.2)
         model.save(self.checkpoint)
 
     def evaluate_dnn(self):
@@ -147,8 +148,10 @@ class Model:
         print(Y)
 
     def train_cnn(self):
-        train_X, train_Y = self.train_data
-        test_X, test_Y = self.test_data
+
+        data_X, data_Y = self.full_data
+
+
         def func(sample):
             x_indices = np.arange(0, sample.shape[0], 2)
             y_indices = np.arange(1, sample.shape[0], 2)
@@ -156,9 +159,8 @@ class Model:
             y = sample[y_indices]
             upd_sample = np.array([x,y]).T
             return upd_sample
-        train_X = np.apply_along_axis(func, 1, train_X)
-        test_X = np.apply_along_axis(func, 1, test_X)
-        print(train_X.shape, train_Y.shape, test_X.shape, test_Y.shape)
+        data_X = np.apply_along_axis(func, 1, data_X)
+        print(data_X.shape, data_Y.shape)
 
         clf = self.model()
         clf.compile(loss='binary_crossentropy',
@@ -172,8 +174,8 @@ class Model:
         BATCH_SIZE = 100
         EPOCHS = 1000
 
-        history = clf.fit(train_X,
-                              train_Y,
+        history = clf.fit(data_X,
+                              data_Y,
                               batch_size=BATCH_SIZE,
                               epochs=EPOCHS,
                               callbacks=callbacks_list,
@@ -227,7 +229,7 @@ DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\datase
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
 CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\keras_model.h5" # or it can be keras.h5
-SOLUTION_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_9.csv'
+SOLUTION_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv'
 
 
 DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
@@ -235,7 +237,12 @@ DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 # in inference dont need to collect data
 DL.data_load()
 # DL.train_dnn()
-# DL.evaluate_dnn()
+DL.evaluate_dnn()
+DL.predict_pair(SOLUTION_PATH)
+DL.predict_pair(SOLUTION_PATH)
+DL.predict_pair(SOLUTION_PATH)
+DL.predict_pair(SOLUTION_PATH)
+DL.predict_pair(SOLUTION_PATH)
 DL.predict_pair(SOLUTION_PATH)
 
 # DL.train_cnn()

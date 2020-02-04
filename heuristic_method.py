@@ -70,24 +70,39 @@ class HeuristicMethod:
         '''
             setting values in term of their maximum value and outliers
         '''
-        # q1, q3 = np.percentile(dataset, [25, 75])
-        # iqr = q3 - q1
-        # upper_bound = q3 + (1.5 * iqr)
-        #
-        # max_value = np.max(self.df["value"])
-        # self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x >= upper_bound else 0.0)
+        q1, q3 = np.percentile(dataset, [25, 75])
+        iqr = q3 - q1
+        upper_bound = q3 + (1.5 * iqr)
+
+
+
+        max_value = np.max(self.df["value"])
+        print(np.min(self.df["value"]), max_value, np.mean(self.df["value"]))
+        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if np.round(x) == np.round(max_value) or x > max_value-1 else 0.0)
 
         '''
             setting values in term of their top 10-15%
         '''
-        self.df = self.df.sort_values("value", ascending=False)
+        # self.df = self.df.sort_values("value", ascending=False)
+        #
+        # top = 15
+        # top_10 = int(np.ceil(self.df.shape[0]*top/100))
+        # self.df["class"].iloc[range(0,top_10)] = 1.0
+        # self.df['rank_values'] = self.df['value'].rank(pct=True)
+        #
+        # self.df = self.df.drop("rank_values", axis=1)
 
-        top = 15
-        top_10 = int(np.ceil(self.df.shape[0]*top/100))
-        self.df["class"].iloc[range(0,top_10)] = 1.0
-        self.df['rank_values'] = self.df['value'].rank(pct=True)
 
-        self.df = self.df.drop("rank_values", axis=1)
+        '''
+            setting all this values consistently 
+        '''
+
+        # mean = np.mean(self.df["value"])
+        # std = np.std(self.df["value"])
+        #
+        #
+        # print(mean, upper_bound, std)
+
 
         print("{} - {}/{}".format(self.df.shape[0],np.sum(self.df['class']),  self.df.shape[0] - np.sum(self.df['class'])))
 
