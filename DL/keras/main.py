@@ -114,7 +114,11 @@ class Model:
         optim = optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
         model.compile(loss='binary_crossentropy', optimizer=optim, metrics=['accuracy', "mae", "mse"])
         model.summary()
-        model_output = model.fit(self.full_data[0], self.full_data[1], epochs=100,
+        X = self.full_data[0]
+        Y = self.full_data[1]
+        self.scaler = StandardScaler().fit(X)
+        X_norm = self.scaler.transform(X)
+        model_output = model.fit(X_norm, Y, epochs=100,
                                  batch_size=10, verbose=1,validation_split=0.2)
         model.save(self.checkpoint)
 
@@ -126,7 +130,7 @@ class Model:
         model.compile(loss='binary_crossentropy', optimizer=optim, metrics=['accuracy', "mae", "mse"])
         model.summary()
 
-        res = model.evaluate(self.test_data[0], self.test_data[1], verbose=0)
+        res = model.evaluate(self.scaler.transform(self.test_data[0]), self.test_data[1], verbose=0)
         print(res)
 
     def predict_pair(self, sols_path):
@@ -199,14 +203,14 @@ class Model:
             'mlp__learning_rate': ['constant', 'adaptive']
         }
         model = GridSearchCV(pipeline, param_grid=parameter_space, scoring='f1',n_jobs=1 )
-        model.fit(self.train_data[0], self.train_data[1])
+        model.fit(self.full_data[0], self.full_data[1])
         print("Best parameters of model: ", model.best_params_)
         dump(model, self.checkpoint)
 
     def evaluate(self):
         model = load(self.checkpoint)
-        X = self.test_data[0]
-        Y = self.test_data[1]
+        X = self.full_data[0]
+        Y = self.full_data[1]
         pred = model.predict(X)
         score = model.score(X,Y)
         accuracy = model.score(X,Y)
@@ -236,14 +240,12 @@ DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 
 # in inference dont need to collect data
 DL.data_load()
-DL.train_dnn()
-DL.evaluate_dnn()
-# DL.predict_pair(SOLUTION_PATH)
-# DL.predict_pair(SOLUTION_PATH)
-# DL.predict_pair(SOLUTION_PATH)
-# DL.predict_pair(SOLUTION_PATH)
-# DL.predict_pair(SOLUTION_PATH)
-# DL.predict_pair(SOLUTION_PATH)
+
+
+
+# DL.train_dnn()
+# DL.evaluate_dnn()
+
 
 # DL.train_cnn()
 
@@ -253,7 +255,7 @@ DL.evaluate_dnn()
     SIMPLE MLP/DNN/FCNetwork
 '''
 # train process
-# DL.train()
+DL.train()
 
 send_email(
     user="crm.kamalkhan@gmail.com",
@@ -264,8 +266,20 @@ send_email(
 )
 
 # evaluate process
-# DL.evaluate()
+DL.evaluate()
 
 # inference on real data
-# DL.inference(SOLUTION_PATH)
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_2.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_4.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_5.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_6.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_7.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_9.csv')
 
+
+# TODO SELECT ONLY FIRST 10-20 OPTIMAL SOLUTIONS
+# TODO RATIO OF OPTIMAL SOLUTIONS 80/20% - 20% HAVE TO CONSIST BEST AND NOT BEST OPTIMAL SOLUTIONS
+# TODO RATIO OF PAIRS 80/20 %
+# TODO TRAIN NEW MODEL

@@ -143,9 +143,3 @@ send_email(
     subject="Deep Learning Model",
     body="Its ready"
 )
-
-
-# TODO check only with one pair with 1000 optimal solutions
-# TODO every step of preparing HR add new pair
-# TODO create Heuristic Model with consistent choosing best optimal solutions
-# TODO create new way of generating optimal solutions using closest points
