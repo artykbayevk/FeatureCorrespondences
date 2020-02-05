@@ -78,7 +78,7 @@ class HeuristicMethod:
 
         max_value = np.max(self.df["value"])
         print(np.min(self.df["value"]), max_value, np.mean(self.df["value"]))
-        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if np.round(x) == np.round(max_value) or x > max_value-1 else 0.0)
+        self.df['class'] = self.df['value'].apply(lambda x: 1.0 if x == max_value or x >= max_value-0.1 else 0.0)
 
         '''
             setting values in term of their top 10-15%
@@ -116,7 +116,7 @@ class HeuristicMethod:
 
 # HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
 
-for i in range(1,10):
+for i in range(1,23):
     sol_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_{}\experiment'.format(str(i))
     print("Solution: {}".format(str(i)))
     HR = HeuristicMethod(sol_path, size_of_sample=400)

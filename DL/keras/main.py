@@ -255,7 +255,8 @@ DL.data_load()
     SIMPLE MLP/DNN/FCNetwork
 '''
 # train process
-DL.train()
+# DL.train()
+
 
 send_email(
     user="crm.kamalkhan@gmail.com",
@@ -266,17 +267,15 @@ send_email(
 )
 
 # evaluate process
-DL.evaluate()
+# DL.evaluate()
 
 # inference on real data
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_2.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_4.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_5.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_6.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_7.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_8.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_9.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_10.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_11.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_12.csv')
 
 
 # TODO SELECT ONLY FIRST 10-20 OPTIMAL SOLUTIONS
