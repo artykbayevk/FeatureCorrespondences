@@ -62,6 +62,8 @@ class Model:
         stereo_dataset = pd.concat(stereo)
         Y = stereo_dataset[stereo_dataset.shape[1]-1].values
         X = stereo_dataset.drop(stereo_dataset.shape[1]-1, axis=1).values
+
+
         stratSplit = StratifiedShuffleSplit(n_splits=1, test_size=0.20, random_state=42)
         stratSplit.get_n_splits(X,Y)
 
@@ -75,6 +77,13 @@ class Model:
         self.train_data = (X_train, Y_train)
         self.test_data = (X_test, Y_test)
         self.full_data = (X,Y)
+
+    def ratio_data_loader(self):
+        """
+
+        :return: train_data and test_data updated
+        """
+        pass
 
     def model(self):
         model = keras.models.Sequential()
