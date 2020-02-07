@@ -64,18 +64,18 @@ class Model:
         X = stereo_dataset.drop(stereo_dataset.shape[1]-1, axis=1).values
 
 
-        stratSplit = StratifiedShuffleSplit(n_splits=1, test_size=0.20, random_state=42)
-        stratSplit.get_n_splits(X,Y)
+        # stratSplit = StratifiedShuffleSplit(n_splits=1, test_size=0.20, random_state=42)
+        # stratSplit.get_n_splits(X,Y)
+        #
+        # for train_idx, test_idx in stratSplit.split(X,Y):
+        #     X_train = X[train_idx]
+        #     Y_train = Y[train_idx]
+        #
+        #     X_test = X[test_idx]
+        #     Y_test = Y[test_idx]
 
-        for train_idx, test_idx in stratSplit.split(X,Y):
-            X_train = X[train_idx]
-            Y_train = Y[train_idx]
-
-            X_test = X[test_idx]
-            Y_test = Y[test_idx]
-
-        self.train_data = (X_train, Y_train)
-        self.test_data = (X_test, Y_test)
+        # self.train_data = (X_train, Y_train)
+        # self.test_data = (X_test, Y_test)
         self.full_data = (X,Y)
 
     def ratio_data_loader(self):
@@ -83,7 +83,43 @@ class Model:
 
         :return: train_data and test_data updated
         """
-        pass
+        test_size = 0.20
+        num_sol = 20
+        num_of_features = 400
+
+
+
+        pair_num = int(self.full_data[0].shape[0]/num_sol) # 20 is the num of solutions
+
+        X_TR = []
+        X_TS = []
+        Y_TR = []
+        Y_TS = []
+
+        dataset_X = self.full_data[0].reshape(pair_num, num_sol, num_of_features)
+        dataset_Y = self.full_data[1].reshape(pair_num, num_sol)
+        for idx, pair_X in enumerate(dataset_X):
+            pair_Y = dataset_Y[idx]
+            stratSplit = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=42)
+            stratSplit.get_n_splits(pair_X, pair_Y)
+            for train_idx, test_idx in stratSplit.split(pair_X, pair_Y):
+                X_train = pair_X[train_idx]
+                Y_train = pair_Y[train_idx]
+
+                X_test = pair_X[test_idx]
+                Y_test = pair_Y[test_idx]
+
+                X_TR.append(X_train)
+                X_TS.append(X_test)
+                Y_TR.append(Y_train)
+                Y_TS.append(Y_test)
+        X_TR = np.array(X_TR).reshape(-pair_num * int(test_size*num_sol), num_of_features)
+        X_TS = np.array(X_TS).reshape(-pair_num * int(test_size*num_sol), num_of_features)
+        Y_TR = np.array(Y_TR).reshape(-pair_num * int(test_size*num_sol),1)
+        Y_TS = np.array(Y_TS).reshape(-pair_num * int(test_size*num_sol),1)
+
+        self.train_data = (X_TR, Y_TR)
+        self.test_data = (X_TS, Y_TS)
 
     def model(self):
         model = keras.models.Sequential()
@@ -212,14 +248,14 @@ class Model:
             'mlp__learning_rate': ['constant', 'adaptive']
         }
         model = GridSearchCV(pipeline, param_grid=parameter_space, scoring='f1',n_jobs=1 )
-        model.fit(self.full_data[0], self.full_data[1])
+        model.fit(self.train_data[0], self.train_data[1])
         print("Best parameters of model: ", model.best_params_)
         dump(model, self.checkpoint)
 
     def evaluate(self):
         model = load(self.checkpoint)
-        X = self.full_data[0]
-        Y = self.full_data[1]
+        X = self.test_data[0]
+        Y = self.test_data[1]
         pred = model.predict(X)
         score = model.score(X,Y)
         accuracy = model.score(X,Y)
@@ -249,7 +285,7 @@ DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 
 # in inference dont need to collect data
 DL.data_load()
-
+DL.ratio_data_loader()
 
 
 # DL.train_dnn()
@@ -279,12 +315,12 @@ send_email(
 # DL.evaluate()
 
 # inference on real data
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_7.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_8.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_9.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_10.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_11.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_12.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv')
+# DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_8.csv')
+# DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_9.csv')
+# DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_10.csv')
+# DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_11.csv')
+# DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_12.csv')
 
 
 # TODO SELECT ONLY FIRST 10-20 OPTIMAL SOLUTIONS

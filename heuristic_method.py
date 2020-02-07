@@ -110,6 +110,8 @@ class HeuristicMethod:
         df = self.df.drop("value", axis=1)
         if int(np.sum(self.df["class"])) == self.df.shape[0]:
             print("Class unbalancing\n")
+        elif int(np.sum(self.df["class"])) == 1:
+            print("Only unbalancing\n")
         else:
             df.to_csv(out_path, index=None, header=False)
             print("Saved\n")
