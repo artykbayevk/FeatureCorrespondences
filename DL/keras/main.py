@@ -12,6 +12,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import f1_score
 from joblib import dump, load
 from sklearn.metrics import confusion_matrix
+
 warnings.filterwarnings("ignore")
 from keras.layers import Dense, Dropout
 from keras.models import Sequential
@@ -248,14 +249,14 @@ class Model:
             'mlp__learning_rate': ['constant', 'adaptive']
         }
         model = GridSearchCV(pipeline, param_grid=parameter_space, scoring='f1',n_jobs=1 )
-        model.fit(self.train_data[0], self.train_data[1])
+        model.fit(self.full_data[0], self.full_data[1])
         print("Best parameters of model: ", model.best_params_)
         dump(model, self.checkpoint)
 
     def evaluate(self):
         model = load(self.checkpoint)
-        X = self.test_data[0]
-        Y = self.test_data[1]
+        X = self.full_data[0]
+        Y = self.full_data[1]
         pred = model.predict(X)
         score = model.score(X,Y)
         accuracy = model.score(X,Y)
@@ -300,7 +301,7 @@ DL.ratio_data_loader()
     SIMPLE MLP/DNN/FCNetwork
 '''
 # train process
-# DL.train()
+DL.train()
 
 
 send_email(
@@ -312,7 +313,7 @@ send_email(
 )
 
 # evaluate process
-# DL.evaluate()
+DL.evaluate()
 
 # inference on real data
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
