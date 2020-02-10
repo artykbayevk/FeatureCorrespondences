@@ -130,7 +130,7 @@ stereo = Stereo(
     n_components = int(CONFIG["SIFTFeatures"]),
     plot_ground_truth=False,
     show_imgs = False,
-    n_sols=20
+    n_sols=30
 )
 
 stereo.compute_ground_truth()
