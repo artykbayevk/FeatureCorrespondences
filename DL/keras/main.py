@@ -248,9 +248,10 @@ class Model:
             'mlp__alpha': [0.0001, 0.05],
             'mlp__learning_rate': ['constant', 'adaptive']
         }
-        model = GridSearchCV(pipeline, param_grid=parameter_space, scoring='f1',n_jobs=1 )
+        model = GridSearchCV(pipeline, param_grid=parameter_space, scoring='f1',n_jobs=1, cv=10)
         model.fit(self.full_data[0], self.full_data[1])
         print("Best parameters of model: ", model.best_params_)
+        print("Best score: ", model.scorer_)
         dump(model, self.checkpoint)
 
     def evaluate(self):
@@ -275,6 +276,8 @@ class Model:
         cm = confusion_matrix(y_true=Y, y_pred=pred)
         print(cm)
 
+
+
 DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data'
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
@@ -286,7 +289,7 @@ DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 
 # in inference dont need to collect data
 DL.data_load()
-DL.ratio_data_loader()
+# DL.ratio_data_loader()
 
 
 # DL.train_dnn()
@@ -301,39 +304,39 @@ DL.ratio_data_loader()
     SIMPLE MLP/DNN/FCNetwork
 '''
 # train process
-DL.train()
+# DL.train()
 
 
-send_email(
-    user="crm.kamalkhan@gmail.com",
-    pwd="Astana2019",
-    recipient="kamalkhan.artykbayev@nu.edu.kz",
-    subject="Deep Learning Model",
-    body="Its ready"
-)
+# send_email(
+#     user="crm.kamalkhan@gmail.com",
+#     pwd="Astana2019",
+#     recipient="kamalkhan.artykbayev@nu.edu.kz",
+#     subject="Deep Learning Model",
+#     body="Its ready"
+# )
 
 # evaluate process
 DL.evaluate()
-
-# inference on real data
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_2.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_4.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_5.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_6.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_7.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_8.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_9.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_10.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_11.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_12.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_13.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_14.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_15.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_16.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_17.csv')
+DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_18.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_19.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_20.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_21.csv')
 DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_22.csv')
-
-
 # TODO SELECT ONLY FIRST 10-20 OPTIMAL SOLUTIONS
 # TODO RATIO OF OPTIMAL SOLUTIONS 80/20% - 20% HAVE TO CONSIST BEST AND NOT BEST OPTIMAL SOLUTIONS
 # TODO RATIO OF PAIRS 80/20 %

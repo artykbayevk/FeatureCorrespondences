@@ -130,16 +130,20 @@ stereo = Stereo(
     n_components = int(CONFIG["SIFTFeatures"]),
     plot_ground_truth=False,
     show_imgs = False,
-    n_sols=30
+    n_sols=100
 )
 
 stereo.compute_ground_truth()
 # stereo.julia_method(run_julia = True)
 stereo.compute_LP()
-send_email(
-    user="crm.kamalkhan@gmail.com",
-    pwd="Astana2019",
-    recipient="kamalkhan.artykbayev@nu.edu.kz",
-    subject="Deep Learning Model",
-    body="Its ready"
-)
+
+
+
+
+# send_email(
+#     user="crm.kamalkhan@gmail.com",
+#     pwd="Astana2019",
+#     recipient="kamalkhan.artykbayev@nu.edu.kz",
+#     subject="Deep Learning Model",
+#     body="Its ready"
+# )
