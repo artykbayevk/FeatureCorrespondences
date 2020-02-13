@@ -84,9 +84,9 @@ class Model:
 
         :return: train_data and test_data updated
         """
-        test_size = 0.33
-        num_sol = 30
-        num_of_features = 400
+        test_size = 0.1
+        num_sol = 100
+        num_of_features = 200
 
 
 
@@ -249,15 +249,15 @@ class Model:
             'mlp__learning_rate': ['constant', 'adaptive']
         }
         model = GridSearchCV(pipeline, param_grid=parameter_space, scoring='f1',n_jobs=1, cv=10)
-        model.fit(self.full_data[0], self.full_data[1])
+        model.fit(self.train_data[0], self.train_data[1])
         print("Best parameters of model: ", model.best_params_)
         print("Best score: ", model.scorer_)
         dump(model, self.checkpoint)
 
     def evaluate(self):
         model = load(self.checkpoint)
-        X = self.full_data[0]
-        Y = self.full_data[1]
+        X = self.test_data[0]
+        Y = self.test_data[1]
         pred = model.predict(X)
         score = model.score(X,Y)
         accuracy = model.score(X,Y)
@@ -281,7 +281,7 @@ class Model:
 DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data'
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
-CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\keras_model.joblib" # or it can be keras.h5
+CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\new_model.joblib" # or it can be keras.h5
 SOLUTION_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv'
 
 
@@ -289,7 +289,7 @@ DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 
 # in inference dont need to collect data
 DL.data_load()
-# DL.ratio_data_loader()
+DL.ratio_data_loader()
 
 
 # DL.train_dnn()
@@ -305,8 +305,8 @@ DL.data_load()
 '''
 # train process
 # DL.train()
-
-
+#
+#
 # send_email(
 #     user="crm.kamalkhan@gmail.com",
 #     pwd="Astana2019",

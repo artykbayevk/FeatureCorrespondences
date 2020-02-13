@@ -148,6 +148,21 @@ class Triangulation:
         self.feature_2 = self.findK_centroids_average(self.feature_2, n_components)
 
 
+    def matchingRootSIFTFeatures_advanced(self,solution):
+        solution = solution.reshape(-1,4)
+        PX = solution[:,0].reshape(-1, 1)
+        PY = solution[:,1].reshape(-1, 1)
+
+        QX = solution[:,2].reshape(-1, 1)
+        QY = solution[:,3].reshape(-1, 1)
+
+        matched_pts1 = np.float32(np.concatenate((PX, PY), axis=1))
+        matched_pts2 = np.float32(np.concatenate((QX, QY), axis=1))
+
+        self.match_pts1 = matched_pts1
+        self.match_pts2 = matched_pts2
+
+
     def matchingRootSIFTFeatures(self, pathToCsv=None ,fromJulia=False):
         if fromJulia:
             data_path = os.path.join(pathToCsv)
