@@ -105,7 +105,7 @@ class Stereo:
             if Y[idx] == Y_[idx] and item == 1.0:
                 checker_flag+=1
                 idx_array.append(idx)
-            if Y[idx] == 1.0 and Y[idx] != Y_[idx]:
+            else:
                 other_best_idx.append(idx)
 
             julia = Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
@@ -127,12 +127,12 @@ class Stereo:
                                                                            dist_man_avg,
                                                                            dist_euc_avg,
                                                                             Y[idx], Y_[idx]))
-        max_cheb = np.max(cheb_all)
-        min_cheb = np.min(cheb_all)
-        max_man  = np.max(man_all)
-        min_man  = np.min(man_all)
-        max_euc  = np.max(euc_all)
-        min_euc  = np.min(euc_all)
+        max_cheb = np.max(cheb_all[other_best_idx])
+        min_cheb = np.min(cheb_all[other_best_idx])
+        max_man  = np.max(man_all[other_best_idx])
+        min_man  = np.min(man_all[other_best_idx])
+        max_euc  = np.max(euc_all[other_best_idx])
+        min_euc  = np.min(euc_all[other_best_idx])
 
         selected_cheb = cheb_all[idx_array]
         selected_man = man_all[idx_array]
@@ -153,27 +153,10 @@ class Stereo:
             max_cheb, max_euc, max_man,min_cheb, min_euc, min_man
         ))
 
-        if len(other_best_idx) != 0:
-
-            selected_cheb = cheb_all[other_best_idx]
-            selected_man = man_all[other_best_idx]
-            selected_euc = euc_all[other_best_idx]
-
-            max_cheb = np.max(selected_cheb)
-            min_cheb = np.min(selected_cheb)
-            max_man = np.max(selected_man)
-            min_man = np.min(selected_man)
-            max_euc = np.max(selected_euc)
-            min_euc = np.min(selected_euc)
-
-            print("Not selected data\nMAX:{:3f} {:3f} {:3f}\nMIN:{:3f} {:3f} {:3f}".format(
-                max_cheb, max_euc, max_man,min_cheb, min_euc, min_man
-            ))
-
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 stereo = Stereo(
-    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_3',
+    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_22',
     n_components = int(CONFIG["SIFTFeatures"]),
     plot_ground_truth=False,
     show_imgs = False,
@@ -181,9 +164,34 @@ stereo = Stereo(
 )
 
 stereo.compute_ground_truth()
-stereo.full_evaluation(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv",
+stereo.full_evaluation(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_22.csv",
                        checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\keras_model.joblib")
 
 #TODO evaluate full process.
 #TODO show the real difference between choosing best and not best optimal solution
 #TODO compare minimum of selected best optimal solution with non-selected best optimal solutions/other solutions
+
+# SELECT BEST OF 3
+
+# 1 OTHER
+# 2 OTHER
+# 3 OTHER
+# 4 OUR
+# 5 OUR
+# 6 OUR
+# 7 OUR
+# 8 OTHER
+# 9 -
+# 10 OUR
+# 11 OTHER
+# 12 OTHER
+# 13 OTHER
+# 14 OTHER
+# 15 OTHER
+# 16 OTHER
+# 17 OTHER
+# 18 OTHER
+# 19 OTHER
+# 20 OTHER
+# 21 -
+# 22 - NOT PREDICTED
