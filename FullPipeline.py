@@ -115,61 +115,71 @@ class Stereo:
             julia.findRTmatrices()
             julia.point_cloud(plot=self.draw_plot, title="Our method #{}".format(idx))
             pred = julia.pts3D
-            metrics = Hausdorff(u=pred, v=self.target)
-            dist_cheb_avg = metrics.distance(d_type="cheb", criteria="avg")
-            dist_man_avg = metrics.distance(d_type="man", criteria="avg")
-            dist_euc_avg = metrics.distance(d_type="euc", criteria="avg")
+            metrics_1 = Hausdorff(u=pred, v=self.target)
+            metrics_2 = Hausdorff(u=self.target, v=pred)
+            dist_cheb_avg = max(metrics_1.distance(d_type="cheb", criteria="avg"),
+                             metrics_2.distance(d_type="cheb", criteria="avg"))
+            dist_man_avg = max(metrics_1.distance(d_type="man", criteria="avg"),
+                            metrics_2.distance(d_type="man", criteria="avg"))
+            dist_euc_avg = max(metrics_1.distance(d_type="euc", criteria="avg"),
+                            metrics_2.distance(d_type="euc", criteria="avg"))
+
             cheb_all[idx] = dist_cheb_avg
             man_all[idx] = dist_man_avg
             euc_all[idx] = dist_euc_avg
-            print(
-                "\t\t#{}: \t\t {:5f} {:5f} {:5f} REAL: {} PRED: {}".format(idx, dist_cheb_avg,
-                                                                           dist_man_avg,
-                                                                           dist_euc_avg,
-                                                                            Y[idx], Y_[idx]))
-        max_cheb = np.max(cheb_all[other_best_idx])
-        min_cheb = np.min(cheb_all[other_best_idx])
-        max_man  = np.max(man_all[other_best_idx])
-        min_man  = np.min(man_all[other_best_idx])
-        max_euc  = np.max(euc_all[other_best_idx])
-        min_euc  = np.min(euc_all[other_best_idx])
 
-        selected_cheb = cheb_all[idx_array]
-        selected_man = man_all[idx_array]
-        selected_euc = euc_all[idx_array]
+            # print("\t\t#{}: \t\t {:5f} {:5f} "
+            #       "{:5f} REAL: {} PRED: {}".format(idx, dist_cheb_avg, dist_man_avg,
+            #                                        dist_euc_avg, Y[idx], Y_[idx]))
 
-        print("All data\nMAX:{:3f} {:3f} {:3f}\nMIN:{:3f} {:3f} {:3f}".format(
-            max_cheb, max_euc, max_man,min_cheb, min_euc, min_man
-        ))
-        max_cheb = np.max(selected_cheb)
-        min_cheb = np.min(selected_cheb)
-        max_man = np.max(selected_man)
-        min_man = np.min(selected_man)
-        max_euc = np.max(selected_euc)
-        min_euc = np.min(selected_euc)
+        min_cheb_other = np.min(cheb_all[other_best_idx])
+        min_man_other  = np.min(man_all[other_best_idx])
+        min_euc_other  = np.min(euc_all[other_best_idx])
+
+        min_cheb = np.min(cheb_all[idx_array])
+        min_man = np.min(man_all[idx_array])
+        min_euc = np.min(euc_all[idx_array])
 
         print("\nPredicted : {} out of actual: {}".format(checker_flag, true_flag))
-        print("Selected data\nMAX:{:3f} {:3f} {:3f}\nMIN:{:3f} {:3f} {:3f}\n".format(
-            max_cheb, max_euc, max_man,min_cheb, min_euc, min_man
-        ))
+        print("Other: Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb_other, min_man_other, min_euc_other))
+        print("Our:   Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb, min_man, min_euc))
+        if min_cheb < min_cheb_other or min_man < min_man_other or min_euc < min_euc_other:
+            global checker
+            checker+=1
+            print("OUR\n<=========>")
+        else:
+            print("OTHER\n<=========>")
+        print()
 
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
-stereo = Stereo(
-    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_22',
-    n_components = int(CONFIG["SIFTFeatures"]),
-    plot_ground_truth=False,
-    show_imgs = False,
-    n_sols=100
-)
 
-stereo.compute_ground_truth()
-stereo.full_evaluation(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_22.csv",
+checker = 0
+
+for i in range(1, 22):
+    pair_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_{}'.format(str(i))
+    sol_path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_{}.csv".format(str(i))
+
+    if not os.path.exists(sol_path):
+        continue
+    stereo = Stereo(
+        path = pair_path,
+        n_components = int(CONFIG["SIFTFeatures"]),
+        plot_ground_truth=False,
+        show_imgs = False,
+        n_sols=100
+    )
+
+    stereo.compute_ground_truth()
+    print("PAIR #{}".format(str(i)))
+    stereo.full_evaluation(sol_path,
                        checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\keras_model.joblib")
+print(checker)
 
-#TODO evaluate full process.
-#TODO show the real difference between choosing best and not best optimal solution
-#TODO compare minimum of selected best optimal solution with non-selected best optimal solutions/other solutions
+
+# TODO COLLECT NEW DATASET
+# TODO check with minimum and maximum value
+# TODO remove 10-20-30 % then check their distances between their depths
 
 # SELECT BEST OF 3
 

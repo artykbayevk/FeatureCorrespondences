@@ -35,7 +35,6 @@ class Stereo:
         RT_data = np.array([
             np.array([ np.array([float(z) for z in y.strip('\n').strip(' ').split(' ')]) for y in x]) for x in RT_data
         ])
-
         '''
             assigning intrinsic and extrinsic parameters 
         '''
@@ -128,14 +127,14 @@ with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config
 stereo = Stereo(
     path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_22',
     n_components = int(CONFIG["SIFTFeatures"]),
-    plot_ground_truth=False,
-    show_imgs = False,
+    plot_ground_truth=True,
+    show_imgs = True,
     n_sols=100
 )
 
 stereo.compute_ground_truth()
-# stereo.julia_method(run_julia = True)
-stereo.compute_LP()
+stereo.julia_method(run_julia = False)
+# stereo.compute_LP()
 
 
 
