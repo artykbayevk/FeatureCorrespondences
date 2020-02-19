@@ -13,8 +13,8 @@ class Hausdorff:
             d = self.manhattan(self.u, self.v)
         elif d_type =="cheb":
             d = self.chebyshev(self.u, self.v)
-
         min_ = d.min(axis=1)
+
         # min_2 = d.min(axis=0)
         # min_ = np.concatenate((min_1, min_2))
         stop = 1

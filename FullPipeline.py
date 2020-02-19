@@ -117,11 +117,13 @@ class Stereo:
             pred = julia.pts3D
             metrics_1 = Hausdorff(u=pred, v=self.target)
             metrics_2 = Hausdorff(u=self.target, v=pred)
+
+
             dist_cheb_avg = max(metrics_1.distance(d_type="cheb", criteria="avg"),
                              metrics_2.distance(d_type="cheb", criteria="avg"))
             dist_man_avg = max(metrics_1.distance(d_type="man", criteria="avg"),
                             metrics_2.distance(d_type="man", criteria="avg"))
-            dist_euc_avg = max(metrics_1.distance(d_type="euc", criteria="avg"),
+            dist_euc_avg = max+(metrics_1.distance(d_type="euc", criteria="avg"),
                             metrics_2.distance(d_type="euc", criteria="avg"))
 
             cheb_all[idx] = dist_cheb_avg
@@ -132,13 +134,13 @@ class Stereo:
             #       "{:5f} REAL: {} PRED: {}".format(idx, dist_cheb_avg, dist_man_avg,
             #                                        dist_euc_avg, Y[idx], Y_[idx]))
 
-        min_cheb_other = np.min(cheb_all[other_best_idx])
-        min_man_other  = np.min(man_all[other_best_idx])
-        min_euc_other  = np.min(euc_all[other_best_idx])
+        min_cheb_other = np.max(cheb_all[other_best_idx])
+        min_man_other  = np.max(man_all[other_best_idx])
+        min_euc_other  = np.max(euc_all[other_best_idx])
 
-        min_cheb = np.min(cheb_all[idx_array])
-        min_man = np.min(man_all[idx_array])
-        min_euc = np.min(euc_all[idx_array])
+        min_cheb = np.max(cheb_all[idx_array])
+        min_man = np.max(man_all[idx_array])
+        min_euc = np.max(euc_all[idx_array])
 
         print("\nPredicted : {} out of actual: {}".format(checker_flag, true_flag))
         print("Other: Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb_other, min_man_other, min_euc_other))
