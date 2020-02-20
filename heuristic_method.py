@@ -110,7 +110,9 @@ class HeuristicMethod:
         df = self.df.drop("value", axis=1)
         if int(np.sum(self.df["class"])) == self.df.shape[0]:
             print("Class unbalancing\n")
-        elif int(np.sum(self.df["class"])) == 1:
+        elif int(np.sum(self.df["class"])) == 1 or int(np.sum(self.df["class"])) == 2:
+            print("Class unbalancing\n")
+        elif int(np.sum(self.df["class"])) == 99 or int(np.sum(self.df["class"])) == 98:
             print("Class unbalancing\n")
         else:
             df.to_csv(out_path, index=None, header=False)
@@ -118,9 +120,9 @@ class HeuristicMethod:
 
 # HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
 
-for i in range(1,23):
-    sol_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_{}\experiment'.format(str(i))
+for i in range(0,81):
+    sol_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}\experiment'.format(str(i))
     print("Solution: {}".format(str(i)))
     HR = HeuristicMethod(sol_path, size_of_sample=200)
     HR.rewrited_assign_values(n_neigbors=2)
-    HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_{}.csv'.format(str(i)))
+    HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\pair_{}.csv'.format(str(i)))

@@ -99,68 +99,76 @@ class Stereo:
         cheb_all = np.zeros(all_sol_count)
         man_all = np.zeros(all_sol_count)
         euc_all = np.zeros(all_sol_count)
-
+        print("Prediction Done. Evaluation Next --->")
         idx_array = []
-        for idx, item in enumerate(Y_):
-            if Y[idx] == Y_[idx] and item == 1.0:
-                checker_flag+=1
-                idx_array.append(idx)
-            else:
-                other_best_idx.append(idx)
 
+        res = np.sum(Y_[np.where(Y_ == Y)])
+        if int(res) == 0:
+            return 0
+        else:
             julia = Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
             julia.load_imgs(self.img1_path, self.img2_path)
             julia.findRootSIFTFeatures(n_components=self.n_components)
-            julia.matchingRootSIFTFeatures_advanced(X[idx])
-            julia.findRTmatrices()
-            julia.point_cloud(plot=self.draw_plot, title="Our method #{}".format(idx))
-            pred = julia.pts3D
-            metrics_1 = Hausdorff(u=pred, v=self.target)
-            metrics_2 = Hausdorff(u=self.target, v=pred)
+
+            for idx, item in enumerate(Y_):
+                if Y[idx] == Y_[idx] and item == 1.0:
+                    checker_flag+=1
+                    idx_array.append(idx)
+                else:
+                    other_best_idx.append(idx)
+                julia.matchingRootSIFTFeatures_advanced(X[idx])
+                julia.findRTmatrices()
+                julia.point_cloud(plot=self.draw_plot, title="Our method #{}".format(idx))
+                pred = julia.pts3D
+                metrics_1 = Hausdorff(u=pred, v=self.target)
+                metrics_2 = Hausdorff(u=self.target, v=pred)
 
 
-            dist_cheb_avg = max(metrics_1.distance(d_type="cheb", criteria="avg"),
-                             metrics_2.distance(d_type="cheb", criteria="avg"))
-            dist_man_avg = max(metrics_1.distance(d_type="man", criteria="avg"),
-                            metrics_2.distance(d_type="man", criteria="avg"))
-            dist_euc_avg = max+(metrics_1.distance(d_type="euc", criteria="avg"),
-                            metrics_2.distance(d_type="euc", criteria="avg"))
+                dist_cheb_avg = np.add(metrics_1.distance(d_type="cheb", criteria="avg"),
+                                 metrics_2.distance(d_type="cheb", criteria="avg"))/2
+                dist_man_avg = np.add(metrics_1.distance(d_type="man", criteria="avg"),
+                                metrics_2.distance(d_type="man", criteria="avg"))/2
+                dist_euc_avg = np.add(metrics_1.distance(d_type="euc", criteria="avg"),
+                                metrics_2.distance(d_type="euc", criteria="avg"))/2
 
-            cheb_all[idx] = dist_cheb_avg
-            man_all[idx] = dist_man_avg
-            euc_all[idx] = dist_euc_avg
+                cheb_all[idx] = dist_cheb_avg
+                man_all[idx] = dist_man_avg
+                euc_all[idx] = dist_euc_avg
 
-            # print("\t\t#{}: \t\t {:5f} {:5f} "
-            #       "{:5f} REAL: {} PRED: {}".format(idx, dist_cheb_avg, dist_man_avg,
-            #                                        dist_euc_avg, Y[idx], Y_[idx]))
+                # print("\t\t#{}: \t\t {:5f} {:5f} "
+                #       "{:5f} REAL: {} PRED: {}".format(idx, dist_cheb_avg, dist_man_avg,
+                #                                        dist_euc_avg, Y[idx], Y_[idx]))
 
-        min_cheb_other = np.max(cheb_all[other_best_idx])
-        min_man_other  = np.max(man_all[other_best_idx])
-        min_euc_other  = np.max(euc_all[other_best_idx])
+            min_cheb_other = np.max(cheb_all[other_best_idx])
+            min_man_other  = np.max(man_all[other_best_idx])
+            min_euc_other  = np.max(euc_all[other_best_idx])
 
-        min_cheb = np.max(cheb_all[idx_array])
-        min_man = np.max(man_all[idx_array])
-        min_euc = np.max(euc_all[idx_array])
+            if len(idx_array) == 0:
+                print("MODEL COULD NOT PREDICT THAT")
 
-        print("\nPredicted : {} out of actual: {}".format(checker_flag, true_flag))
-        print("Other: Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb_other, min_man_other, min_euc_other))
-        print("Our:   Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb, min_man, min_euc))
-        if min_cheb < min_cheb_other or min_man < min_man_other or min_euc < min_euc_other:
-            global checker
-            checker+=1
-            print("OUR\n<=========>")
-        else:
-            print("OTHER\n<=========>")
-        print()
+            min_cheb = np.max(cheb_all[idx_array])
+            min_man = np.max(man_all[idx_array])
+            min_euc = np.max(euc_all[idx_array])
+
+            print("\nPredicted : {} out of actual: {}".format(checker_flag, true_flag))
+            print("Other: Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb_other, min_man_other, min_euc_other))
+            print("Our:   Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb, min_man, min_euc))
+            if min_cheb < min_cheb_other or min_man < min_man_other or min_euc < min_euc_other:
+                global checker
+                checker+=1
+                print("OUR\n<=========>")
+            else:
+                print("OTHER\n<=========>")
+            print()
 
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 
 checker = 0
 
-for i in range(1, 22):
-    pair_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_{}'.format(str(i))
-    sol_path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_{}.csv".format(str(i))
+for i in range(0, 81):
+    pair_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}'.format(str(i))
+    sol_path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\pair_{}.csv".format(str(i))
 
     if not os.path.exists(sol_path):
         continue
@@ -175,35 +183,5 @@ for i in range(1, 22):
     stereo.compute_ground_truth()
     print("PAIR #{}".format(str(i)))
     stereo.full_evaluation(sol_path,
-                       checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\keras_model.joblib")
+                       checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\new_model.joblib")
 print(checker)
-
-
-# TODO COLLECT NEW DATASET
-# TODO check with minimum and maximum value
-# TODO remove 10-20-30 % then check their distances between their depths
-
-# SELECT BEST OF 3
-
-# 1 OTHER
-# 2 OTHER
-# 3 OTHER
-# 4 OUR
-# 5 OUR
-# 6 OUR
-# 7 OUR
-# 8 OTHER
-# 9 -
-# 10 OUR
-# 11 OTHER
-# 12 OTHER
-# 13 OTHER
-# 14 OTHER
-# 15 OTHER
-# 16 OTHER
-# 17 OTHER
-# 18 OTHER
-# 19 OTHER
-# 20 OTHER
-# 21 -
-# 22 - NOT PREDICTED

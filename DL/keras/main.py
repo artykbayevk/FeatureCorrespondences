@@ -122,6 +122,9 @@ class Model:
         self.train_data = (X_TR, Y_TR)
         self.test_data = (X_TS, Y_TS)
 
+        print("train data shape: ", X_TR.shape)
+        print("test data shape: ", X_TS.shape)
+
     def model(self):
         model = keras.models.Sequential()
         model.add(Conv1D(100, kernel_size=2, strides=2, input_shape=(200, 2),activation='relu'))
@@ -278,11 +281,10 @@ class Model:
 
 
 
-DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data'
+DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data'
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
 CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\new_model.joblib" # or it can be keras.h5
-SOLUTION_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv'
 
 
 DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
@@ -305,8 +307,6 @@ DL.ratio_data_loader()
 '''
 # train process
 # DL.train()
-#
-#
 # send_email(
 #     user="crm.kamalkhan@gmail.com",
 #     pwd="Astana2019",
@@ -316,27 +316,12 @@ DL.ratio_data_loader()
 # )
 
 # evaluate process
-DL.evaluate()
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_2.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_3.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_4.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_5.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_6.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_7.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_8.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_10.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_11.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_12.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_13.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_14.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_15.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_16.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_17.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_18.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_19.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_20.csv')
-DL.inference(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_22.csv')
+# DL.evaluate()
+# all_stereo_data = glob.glob(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\*.csv')
+# for file in all_stereo_data:
+#     print(os.path.basename(file))
+#     DL.inference(file)
+
 # TODO SELECT ONLY FIRST 10-20 OPTIMAL SOLUTIONS
 # TODO RATIO OF OPTIMAL SOLUTIONS 80/20% - 20% HAVE TO CONSIST BEST AND NOT BEST OPTIMAL SOLUTIONS
 # TODO RATIO OF PAIRS 80/20 %

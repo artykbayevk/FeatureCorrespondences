@@ -93,7 +93,7 @@ class Stereo:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        print(stdout, stderr)
+        # print(stdout, stderr)
         self.opt_solutions = len(glob.glob(os.path.join(self.exp_dir, "*.csv")))
 
 
@@ -124,17 +124,20 @@ class Stereo:
 
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
-stereo = Stereo(
-    path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\pair_22',
-    n_components = int(CONFIG["SIFTFeatures"]),
-    plot_ground_truth=True,
-    show_imgs = True,
-    n_sols=100
-)
 
-stereo.compute_ground_truth()
-stereo.julia_method(run_julia = False)
-# stereo.compute_LP()
+for i in range(0,32):
+    stereo = Stereo(
+        path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}'.format(str(i)),
+        n_components = int(CONFIG["SIFTFeatures"]),
+        plot_ground_truth=False,
+        show_imgs = False,
+        n_sols=100
+    )
+
+    stereo.compute_ground_truth()
+    # stereo.julia_method(run_julia = True)
+    stereo.compute_LP()
+    print("Pair: {} finished".format(str(i)))
 
 
 
