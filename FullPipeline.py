@@ -124,18 +124,18 @@ class Stereo:
                 metrics_2 = Hausdorff(u=self.target, v=pred)
 
 
-                dist_cheb_avg = np.add(metrics_1.distance(d_type="cheb", criteria="avg"),
-                                 metrics_2.distance(d_type="cheb", criteria="avg"))/2
-                dist_man_avg = np.add(metrics_1.distance(d_type="man", criteria="avg"),
-                                metrics_2.distance(d_type="man", criteria="avg"))/2
-                dist_euc_avg = np.add(metrics_1.distance(d_type="euc", criteria="avg"),
-                                metrics_2.distance(d_type="euc", criteria="avg"))/2
+                dist_cheb_avg = max(metrics_1.distance(d_type="cheb", criteria="avg"),
+                                 metrics_2.distance(d_type="cheb", criteria="avg"))
+                dist_man_avg = max(metrics_1.distance(d_type="man", criteria="avg"),
+                                metrics_2.distance(d_type="man", criteria="avg"))
+                dist_euc_avg = max(metrics_1.distance(d_type="euc", criteria="avg"),
+                                metrics_2.distance(d_type="euc", criteria="avg"))
 
                 cheb_all[idx] = dist_cheb_avg
                 man_all[idx] = dist_man_avg
                 euc_all[idx] = dist_euc_avg
 
-                # print("\t\t#{}: \t\t {:5f} {:5f} "
+                # print("\t\t#{}: \t\t {:5f} {:5f} "r
                 #       "{:5f} REAL: {} PRED: {}".format(idx, dist_cheb_avg, dist_man_avg,
                 #                                        dist_euc_avg, Y[idx], Y_[idx]))
 
@@ -183,5 +183,5 @@ for i in range(0, 81):
     stereo.compute_ground_truth()
     print("PAIR #{}".format(str(i)))
     stereo.full_evaluation(sol_path,
-                       checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\new_model.joblib")
+                       checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\dataset_3_model.joblib")
 print(checker)

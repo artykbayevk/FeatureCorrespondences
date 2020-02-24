@@ -284,7 +284,7 @@ class Model:
 DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data'
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
-CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\new_model.joblib" # or it can be keras.h5
+CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\dataset_3_model.joblib" # or it can be keras.h5
 
 
 DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
@@ -316,11 +316,11 @@ DL.ratio_data_loader()
 # )
 
 # evaluate process
-# DL.evaluate()
-# all_stereo_data = glob.glob(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\*.csv')
-# for file in all_stereo_data:
-#     print(os.path.basename(file))
-#     DL.inference(file)
+DL.evaluate()
+all_stereo_data = glob.glob(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\*.csv')
+for file in all_stereo_data:
+    print(os.path.basename(file))
+    DL.inference(file)
 
 # TODO SELECT ONLY FIRST 10-20 OPTIMAL SOLUTIONS
 # TODO RATIO OF OPTIMAL SOLUTIONS 80/20% - 20% HAVE TO CONSIST BEST AND NOT BEST OPTIMAL SOLUTIONS
