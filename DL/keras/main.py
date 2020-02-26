@@ -237,7 +237,7 @@ class Model:
 
 
     def train(self):
-        print("Model configured and ready for train")
+        print("Model configured and ready for train.TRAINING")
         pipeline = Pipeline(
             [
                 ('scaler', StandardScaler()),
@@ -284,7 +284,7 @@ class Model:
 DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data'
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
-CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\dataset_3_model.joblib" # or it can be keras.h5
+CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\entry_model.joblib" # or it can be keras.h5
 
 
 DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
@@ -306,14 +306,14 @@ DL.ratio_data_loader()
     SIMPLE MLP/DNN/FCNetwork
 '''
 # train process
-# DL.train()
-# send_email(
-#     user="crm.kamalkhan@gmail.com",
-#     pwd="Astana2019",
-#     recipient="kamalkhan.artykbayev@nu.edu.kz",
-#     subject="Deep Learning Model",
-#     body="Its ready"
-# )
+DL.train()
+send_email(
+    user="crm.kamalkhan@gmail.com",
+    pwd="Astana2019",
+    recipient="kamalkhan.artykbayev@nu.edu.kz",
+    subject="Deep Learning Model",
+    body="Its ready"
+)
 
 # evaluate process
 DL.evaluate()

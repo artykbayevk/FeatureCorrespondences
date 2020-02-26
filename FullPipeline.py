@@ -86,7 +86,7 @@ class Stereo:
         opencv.point_cloud(plot=self.draw_plot, title="OpenCV")
         self.target = opencv.pts3D
 
-    def full_evaluation(self, opt_solution_path, checkpoint_path):
+    def full_evaluation(self, opt_solution_path, checkpoint_path, method):
         dataset = pd.read_csv(opt_solution_path, header=None, index_col=None)
         X = dataset.drop(dataset.columns[-1], axis=1).values
         Y = dataset[dataset.columns[-1]].values
@@ -123,13 +123,31 @@ class Stereo:
                 metrics_1 = Hausdorff(u=pred, v=self.target)
                 metrics_2 = Hausdorff(u=self.target, v=pred)
 
+                if method == 'avg':
 
-                dist_cheb_avg = max(metrics_1.distance(d_type="cheb", criteria="avg"),
-                                 metrics_2.distance(d_type="cheb", criteria="avg"))
-                dist_man_avg = max(metrics_1.distance(d_type="man", criteria="avg"),
-                                metrics_2.distance(d_type="man", criteria="avg"))
-                dist_euc_avg = max(metrics_1.distance(d_type="euc", criteria="avg"),
-                                metrics_2.distance(d_type="euc", criteria="avg"))
+                    dist_cheb_avg = np.add(metrics_1.distance(d_type="cheb", criteria="avg"),
+                                     metrics_2.distance(d_type="cheb", criteria="avg"))/2
+                    dist_man_avg = np.add(metrics_1.distance(d_type="man", criteria="avg"),
+                                    metrics_2.distance(d_type="man", criteria="avg"))/2
+                    dist_euc_avg = np.add(metrics_1.distance(d_type="euc", criteria="avg"),
+                                    metrics_2.distance(d_type="euc", criteria="avg"))/2
+                elif method == 'min':
+                    dist_cheb_avg = min(metrics_1.distance(d_type="cheb", criteria="avg"),
+                                     metrics_2.distance(d_type="cheb", criteria="avg"))
+                    dist_man_avg = min(metrics_1.distance(d_type="man", criteria="avg"),
+                                    metrics_2.distance(d_type="man", criteria="avg"))
+                    dist_euc_avg = min(metrics_1.distance(d_type="euc", criteria="avg"),
+                                    metrics_2.distance(d_type="euc", criteria="avg"))
+                elif method == "max":
+                    dist_cheb_avg = max(metrics_1.distance(d_type="cheb", criteria="avg"),
+                                     metrics_2.distance(d_type="cheb", criteria="avg"))
+                    dist_man_avg = max(metrics_1.distance(d_type="man", criteria="avg"),
+                                    metrics_2.distance(d_type="man", criteria="avg"))
+                    dist_euc_avg = max(metrics_1.distance(d_type="euc", criteria="avg"),
+                                    metrics_2.distance(d_type="euc", criteria="avg"))
+                else:
+                    print("ERRRRRRRRRRORRR")
+                    return 0
 
                 cheb_all[idx] = dist_cheb_avg
                 man_all[idx] = dist_man_avg
@@ -164,9 +182,19 @@ class Stereo:
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 
-checker = 0
 
-for i in range(0, 81):
+ranges = {
+    "fountain":[0,19],
+    "herjzesu":[19,32],
+    "entry":[32, 49],
+    "castle":[49, 81]
+}
+
+checker = 0
+method = "max"
+r = ranges["castle"]
+
+for i in range(r[0], r[1]):
     pair_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}'.format(str(i))
     sol_path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\pair_{}.csv".format(str(i))
 
@@ -183,5 +211,6 @@ for i in range(0, 81):
     stereo.compute_ground_truth()
     print("PAIR #{}".format(str(i)))
     stereo.full_evaluation(sol_path,
-                       checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\dataset_3_model.joblib")
+                       checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\herzjesu_model.joblib", method = method)
+print("method is {}".format(method))
 print(checker)

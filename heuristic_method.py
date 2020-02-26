@@ -120,7 +120,7 @@ class HeuristicMethod:
 
 # HR.save(out_path=r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset\stereo_heuristic_data\pair_1.csv')
 
-for i in range(0,81):
+for i in range(0, 81):
     sol_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}\experiment'.format(str(i))
     print("Solution: {}".format(str(i)))
     HR = HeuristicMethod(sol_path, size_of_sample=200)
