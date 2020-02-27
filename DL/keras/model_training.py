@@ -284,7 +284,7 @@ class Model:
 DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data'
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
-CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\entry_model.joblib" # or it can be keras.h5
+CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\castle_model.joblib" # or it can be keras.h5
 
 
 DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)

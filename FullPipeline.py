@@ -99,12 +99,12 @@ class Stereo:
         cheb_all = np.zeros(all_sol_count)
         man_all = np.zeros(all_sol_count)
         euc_all = np.zeros(all_sol_count)
-        print("Prediction Done. Evaluation Next --->")
         idx_array = []
 
         res = np.sum(Y_[np.where(Y_ == Y)])
+
         if int(res) == 0:
-            return 0
+            return False
         else:
             julia = Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
             julia.load_imgs(self.img1_path, self.img2_path)
@@ -146,23 +146,14 @@ class Stereo:
                     dist_euc_avg = max(metrics_1.distance(d_type="euc", criteria="avg"),
                                     metrics_2.distance(d_type="euc", criteria="avg"))
                 else:
-                    print("ERRRRRRRRRRORRR")
-                    return 0
-
+                    return False
                 cheb_all[idx] = dist_cheb_avg
                 man_all[idx] = dist_man_avg
                 euc_all[idx] = dist_euc_avg
 
-                # print("\t\t#{}: \t\t {:5f} {:5f} "r
-                #       "{:5f} REAL: {} PRED: {}".format(idx, dist_cheb_avg, dist_man_avg,
-                #                                        dist_euc_avg, Y[idx], Y_[idx]))
-
             min_cheb_other = np.max(cheb_all[other_best_idx])
             min_man_other  = np.max(man_all[other_best_idx])
             min_euc_other  = np.max(euc_all[other_best_idx])
-
-            if len(idx_array) == 0:
-                print("MODEL COULD NOT PREDICT THAT")
 
             min_cheb = np.max(cheb_all[idx_array])
             min_man = np.max(man_all[idx_array])
@@ -171,13 +162,11 @@ class Stereo:
             print("\nPredicted : {} out of actual: {}".format(checker_flag, true_flag))
             print("Other: Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb_other, min_man_other, min_euc_other))
             print("Our:   Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb, min_man, min_euc))
-            if min_cheb < min_cheb_other or min_man < min_man_other or min_euc < min_euc_other:
-                global checker
-                checker+=1
-                print("OUR\n<=========>")
-            else:
-                print("OTHER\n<=========>")
             print()
+            if min_cheb < min_cheb_other or min_man < min_man_other or min_euc < min_euc_other:
+                return True
+            else:
+                return False
 
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
@@ -190,27 +179,48 @@ ranges = {
     "castle":[49, 81]
 }
 
-checker = 0
-method = "max"
-r = ranges["castle"]
+full_dataset = {
+    "fountain": 0,
+    "herjzesu": 0,
+    "entry": 0,
+    "castle": 0
+}
 
-for i in range(r[0], r[1]):
-    pair_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}'.format(str(i))
-    sol_path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\pair_{}.csv".format(str(i))
+all_counters = {}
+overall = {}
+methods = ["avg","min", "max"]
 
-    if not os.path.exists(sol_path):
-        continue
-    stereo = Stereo(
-        path = pair_path,
-        n_components = int(CONFIG["SIFTFeatures"]),
-        plot_ground_truth=False,
-        show_imgs = False,
-        n_sols=100
-    )
+selected = "castle"
 
-    stereo.compute_ground_truth()
-    print("PAIR #{}".format(str(i)))
-    stereo.full_evaluation(sol_path,
-                       checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\herzjesu_model.joblib", method = method)
-print("method is {}".format(method))
-print(checker)
+r = ranges[selected]
+for method in methods:
+    checker = 0
+    for i in range(r[0], r[1]):
+        pair_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}'.format(str(i))
+        sol_path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\pair_{}.csv".format(str(i))
+
+        if not os.path.exists(sol_path):
+            continue
+        stereo = Stereo(
+            path = pair_path,
+            n_components = int(CONFIG["SIFTFeatures"]),
+            plot_ground_truth=False,
+            show_imgs = False,
+            n_sols=100
+        )
+        full_dataset[selected]+=1
+        stereo.compute_ground_truth()
+        print("PAIR #{}".format(str(i)))
+        res = stereo.full_evaluation(sol_path,
+                                     checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\castle_model.joblib",
+                                     method = method)
+        if res:
+            checker+=1
+        else:
+            print("Not predicted by the model or results higher than others\n")
+    print("method is {}\n============================================".format(method))
+    print(checker)
+    all_counters[method] = checker
+
+print("full result is ", all_counters)
+print("full data is", int(full_dataset[selected]/3))
