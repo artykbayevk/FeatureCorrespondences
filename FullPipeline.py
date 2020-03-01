@@ -197,7 +197,7 @@ for method in methods:
     checker = 0
     for i in range(r[0], r[1]):
         pair_path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}'.format(str(i))
-        sol_path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\pair_{}.csv".format(str(i))
+        sol_path = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\all\pair_{}.csv".format(str(i))
 
         if not os.path.exists(sol_path):
             continue
@@ -212,7 +212,7 @@ for method in methods:
         stereo.compute_ground_truth()
         print("PAIR #{}".format(str(i)))
         res = stereo.full_evaluation(sol_path,
-                                     checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\castle_model.joblib",
+                                     checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\combined_models\entry_castle.joblib",
                                      method = method)
         if res:
             checker+=1
