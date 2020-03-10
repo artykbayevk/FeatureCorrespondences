@@ -1,3 +1,4 @@
+
 # %%
 import os
 import glob
@@ -18,6 +19,7 @@ from keras.layers import Dense, Dropout
 from keras.models import Sequential
 from keras.regularizers import l2
 from keras import optimizers
+
 from keras.layers.convolutional import Conv1D
 from keras.layers.pooling import MaxPool1D, GlobalAveragePooling1D
 from keras.layers import Dropout
@@ -65,7 +67,7 @@ class Model:
         X = stereo_dataset.drop(stereo_dataset.shape[1]-1, axis=1).values
 
         self.full_data = (X,Y)
-
+        print("data shape:", X.shape)
     def ratio_data_loader(self):
         """
 
@@ -156,15 +158,15 @@ class Model:
             'mlp__learning_rate': ['constant', 'adaptive']
         }
         model = GridSearchCV(pipeline, param_grid=parameter_space, scoring='f1',n_jobs=1, cv=10)
-        model.fit(self.train_data[0], self.train_data[1])
+        model.fit(self.full_data[0], self.full_data[1])
         print("Best parameters of model: ", model.best_params_)
         print("Best score: ", model.scorer_)
         dump(model, self.checkpoint)
 
     def evaluate(self):
         model = load(self.checkpoint)
-        X = self.test_data[0]
-        Y = self.test_data[1]
+        X = self.full_data[0]
+        Y = self.full_data[1]
         pred = model.predict(X)
         score = model.score(X,Y)
         accuracy = model.score(X,Y)
@@ -184,21 +186,22 @@ class Model:
         print(cm)
 
 
-DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\all'
+
+DATA_PATH = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\herjzesu_entry_castle'
 PHASE = 'inference' # or can be evaluate or inference
 TYPE_OF_MODEL = 'sklearn' # or can be keras
-CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\keras_model.h5"
+CHECKPOINT = r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\combined_models\herjzesu_entry_castle.joblib"
 
-MODEL_TYPE = 'DNN'
+MODEL_TYPE = 'MLP'
 
 DL = Model(DATA_PATH, PHASE, TYPE_OF_MODEL, CHECKPOINT)
 DL.data_load()
-DL.ratio_data_loader()
+#DL.ratio_data_loader()
 
 '''
     DNN MODEL ON KERAS
 '''
-if MODEL_TYPE == "MLP":
+if MODEL_TYPE == "DNN":
     DL.train_evaluate_dnn()
 
 
@@ -209,7 +212,7 @@ if MODEL_TYPE == "MLP":
 if MODEL_TYPE == 'MLP':
     DL.train()
     DL.evaluate()
-    all_stereo_data = glob.glob(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\all\*.csv')
+    all_stereo_data = glob.glob(r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\stereo_heuristic_data\herjzesu_entry_castle\*.csv')
     for file in all_stereo_data:
         print(os.path.basename(file))
         DL.inference(file)

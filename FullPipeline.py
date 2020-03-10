@@ -192,6 +192,7 @@ methods = ["avg","min", "max"]
 
 selected = "castle"
 
+
 r = ranges[selected]
 for method in methods:
     checker = 0
@@ -212,7 +213,7 @@ for method in methods:
         stereo.compute_ground_truth()
         print("PAIR #{}".format(str(i)))
         res = stereo.full_evaluation(sol_path,
-                                     checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\combined_models\entry_castle.joblib",
+                                     checkpoint_path=r"C:\Users\user\Documents\Research\FeatureCorrespondenes\DL\keras\combined_models\fountain_herjzesu_entry.joblib",
                                      method = method)
         if res:
             checker+=1
