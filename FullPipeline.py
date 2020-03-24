@@ -9,6 +9,7 @@ import point_cloud_utils as pcu
 from scripts.Triangulation.Depth import Triangulation
 from scripts.Triangulation.HausdorffDist import Hausdorff
 from scripts.email import send_email
+from scripts.AngularSimilarity import AngularSimilarity
 from joblib import load
 
 class Stereo:
@@ -103,6 +104,8 @@ class Stereo:
 
         chamfer = np.zeros(all_sol_count)
 
+        angular = np.zeros(all_sol_count)
+
         idx_array = []
 
         res = np.sum(Y_[np.where(Y_ == Y)])
@@ -130,6 +133,8 @@ class Stereo:
                 metrics_1 = Hausdorff(u=pred, v=self.target)
                 metrics_2 = Hausdorff(u=self.target, v=pred)
                 chamfer_dist = pcu.chamfer(pred, self.target)
+                ang_sim = AngularSimilarity(pred, self.target)
+                ang_dist = ang_sim.compute_distance()
                 if method == 'avg':
 
                     dist_cheb_avg = np.add(metrics_1.distance(d_type="cheb", criteria="avg"),
@@ -159,12 +164,17 @@ class Stereo:
                 euc_all[idx] = dist_euc_avg
                 chamfer[idx] = chamfer_dist
 
+                angular[idx] = ang_dist
+
             min_chamfer_other = np.max(chamfer[other_best_idx])
+            min_angular_other = np.max(angular[other_best_idx])
+
 
             min_cheb_other = np.max(cheb_all[other_best_idx])
             min_man_other  = np.max(man_all[other_best_idx])
             min_euc_other  = np.max(euc_all[other_best_idx])
 
+            min_angular = np.max(angular[idx_array])
             min_chamfer = np.max(chamfer[idx_array])
             min_cheb = np.max(cheb_all[idx_array])
             min_man = np.max(man_all[idx_array])
@@ -175,10 +185,10 @@ class Stereo:
             # print("Our:   Cheb: {:3f} Man: {:3f} Euc: {:3f}".format(min_cheb, min_man, min_euc))
             # print()
 
-            print("Other: Chamfer: {:3f}".format(min_chamfer_other))
-            print("Our:   Chamfer: {:3f}".format(min_chamfer))
+            print("Other: Chamfer: {:3f}".format(min_angular_other))
+            print("Our:   Chamfer: {:3f}".format(min_angular))
             print()
-            if min_chamfer < min_chamfer_other:
+            if min_angular < min_angular_other:
                 return True
             else:
                 return False
@@ -212,8 +222,8 @@ overall = {}
 # methods = ["avg","min", "max"]
 methods = ["avg"]
 
-selected = "castle"
 
+selected = "castle"
 
 r = ranges[selected]
 for method in methods:
