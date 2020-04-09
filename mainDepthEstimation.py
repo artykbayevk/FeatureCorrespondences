@@ -101,7 +101,7 @@ class Stereo:
         if run_julia:
             self.compute_LP()
 
-        for f_i in range(1, self.opt_solutions+1):
+        for f_i in range(1, 100):
             julia= Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
             julia.load_imgs(self.img1_path, self.img2_path)
             julia.findRootSIFTFeatures(n_components=self.n_components)
@@ -125,18 +125,18 @@ class Stereo:
 with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
     CONFIG = json.load(f)["config"]
 
-for i in range(0,32):
+for i in range(0,1):
     stereo = Stereo(
         path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}'.format(str(i)),
         n_components = int(CONFIG["SIFTFeatures"]),
-        plot_ground_truth=False,
-        show_imgs = False,
+        plot_ground_truth=True,
+        show_imgs = True,
         n_sols=100
     )
 
     stereo.compute_ground_truth()
-    # stereo.julia_method(run_julia = True)
-    stereo.compute_LP()
+    stereo.julia_method(run_julia = False)
+    # stereo.compute_LP()
     print("Pair: {} finished".format(str(i)))
 
 

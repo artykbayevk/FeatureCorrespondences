@@ -238,6 +238,8 @@ class Triangulation:
         second_inliers = np.array(self.norm_2).reshape(-1, 3)[:, :2]
         pts4D = cv2.triangulatePoints(self.Rt1, self.Rt2, first_inliers.T,
                                       second_inliers.T).T
+        pts4D = cv2.triangulatePoints(self.K.dot(self.Rt1), self.K.dot(self.Rt2), first_inliers.T,
+                                      second_inliers.T).T
         pts3D = pts4D[:, :3] / np.repeat(pts4D[:, 3], 3).reshape(-1, 3)
         Ys = pts3D[:, 0]
         Zs = pts3D[:, 1]
