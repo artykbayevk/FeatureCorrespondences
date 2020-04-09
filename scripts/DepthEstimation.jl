@@ -136,7 +136,7 @@ class Triangulation:
         cv2.imwrite(path, self.outImage)
 scene = Triangulation()
 """
-n_components = JSON.parse(String(read("C:/Users/user/Documents/Research/FeatureCorrespondenes/config/config.json")))["config"]["SIFTFeatures"]
+n_components = JSON.parse(String(read(ARGS[5])))["config"]["SIFTFeatures"]
 
 pair = 9
 

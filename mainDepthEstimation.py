@@ -2,15 +2,18 @@ import glob
 import json
 import os
 import subprocess
-
+import platform
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 from scripts.Triangulation.Depth import Triangulation
 from scripts.Triangulation.HausdorffDist import Hausdorff
 
 BASE = os.getcwd()
-
+CONFIG_PATH = os.path.join(BASE, "config", "config.json")
+with open(CONFIG_PATH, 'r') as f:
+    CONFIG = json.load(f)["config"]
 
 class Stereo:
     def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, n_sols = 100):
@@ -82,16 +85,22 @@ class Stereo:
             matched = plt.imread(matched_img)
             plt.imshow(matched, cmap="gray")
             plt.show()
-        opencv.point_cloud(plot=self.draw_plot, title="OpenCV")
+
+        opencv.point_cloud(plot=self.draw_plot, title="GroundTruth")
         self.target = opencv.pts3D
 
     def compute_LP(self):
+        if platform.system() == "Darwin":
+            julia_path = "/Applications/Julia-1.0.app/Contents/Resources/julia/bin/julia"
+        else:
+            julia_path = "julia"
         process = subprocess.Popen(
-            ['julia', os.path.join(BASE, "scripts", "DepthEstimation.jl"),
+            [julia_path, os.path.join(BASE, "scripts", "DepthEstimation.jl"),
              self.img1_path,
              self.img2_path,
              self.main_path,
-             self.limit_solutions],
+             self.limit_solutions,
+             CONFIG_PATH],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
@@ -124,24 +133,22 @@ class Stereo:
                                                                            dist_man_max, dist_euc_avg, dist_euc_max))
 
 
-CONFIG_PATH = os.path.join(BASE, "config", "config.json")
-with open(CONFIG_PATH, 'r') as f:
-    CONFIG = json.load(f)["config"]
 
-for i in range(1, 2):
+
+for i in range(20, 21):
     pair_path = os.path.join(BASE, "data", "dataset", "pair_{}".format(str(i)))
     stereo = Stereo(
         path=pair_path,
         n_components = int(CONFIG["SIFTFeatures"]),
         plot_ground_truth=True,
-        show_imgs = True,
+        show_imgs=False,
         n_sols=100
     )
 
     stereo.compute_ground_truth()
-    stereo.julia_method(run_julia=True)
+    # stereo.julia_method(run_julia=True)
     # stereo.compute_LP()
-    # print("Pair: {} finished".format(str(i)))
+    print("Pair: {} finished".format(str(i)))
 
 
 # send_email(

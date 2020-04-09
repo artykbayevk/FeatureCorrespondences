@@ -1,13 +1,14 @@
-#%%
-from mpl_toolkits.mplot3d import Axes3D
+# %%
+import os
+
+import cv2
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances_argmin_min
-import pandas as pd
-import numpy as np
-import sys
-import cv2
-import os
+
 
 class Triangulation:
     def __init__(self, K, R1, R2, T1, T2):
@@ -35,6 +36,7 @@ class Triangulation:
         :param clusters:
         :return:
         """
+
         class InnerFeatures:
             def __init__(self, kps, des, pos):
                 self.kps = kps
@@ -67,11 +69,13 @@ class Triangulation:
         :param clusters:
         :return:
         """
+
         class InnerFeatures:
             def __init__(self, kps, des, pos):
                 self.kps = kps
                 self.des = des
                 self.pos = pos
+
         kmeans = KMeans(n_clusters=clusters)
 
         pts = np.array(features.pos)
@@ -104,15 +108,15 @@ class Triangulation:
         final_des = np.array(final_des)
         final_kps = np.array(final_kps)
 
-        result = InnerFeatures(kps = final_kps, des=final_des, pos = final_pts)
+        result = InnerFeatures(kps=final_kps, des=final_des, pos=final_pts)
         return result
 
-
-    def findRootSIFTFeatures(self, n_components = None):
+    def findRootSIFTFeatures(self, n_components=None):
 
         class RootSIFT:
             def __init__(self):
                 self.extractor = cv2.xfeatures2d.SIFT_create()
+
             def compute(self, image, kps, eps=1e-7):
                 (kps, descs) = self.extractor.compute(image, kps)
                 if len(kps) == 0:
@@ -147,14 +151,13 @@ class Triangulation:
         self.feature_1 = self.findK_centroids_average(self.feature_1, n_components)
         self.feature_2 = self.findK_centroids_average(self.feature_2, n_components)
 
+    def matchingRootSIFTFeatures_advanced(self, solution):
+        solution = solution.reshape(-1, 4)
+        PX = solution[:, 0].reshape(-1, 1)
+        PY = solution[:, 1].reshape(-1, 1)
 
-    def matchingRootSIFTFeatures_advanced(self,solution):
-        solution = solution.reshape(-1,4)
-        PX = solution[:,0].reshape(-1, 1)
-        PY = solution[:,1].reshape(-1, 1)
-
-        QX = solution[:,2].reshape(-1, 1)
-        QY = solution[:,3].reshape(-1, 1)
+        QX = solution[:, 2].reshape(-1, 1)
+        QY = solution[:, 3].reshape(-1, 1)
 
         matched_pts1 = np.float32(np.concatenate((PX, PY), axis=1))
         matched_pts2 = np.float32(np.concatenate((QX, QY), axis=1))
@@ -162,8 +165,7 @@ class Triangulation:
         self.match_pts1 = matched_pts1
         self.match_pts2 = matched_pts2
 
-
-    def matchingRootSIFTFeatures(self, pathToCsv=None ,fromJulia=False):
+    def matchingRootSIFTFeatures(self, pathToCsv=None, fromJulia=False):
         if fromJulia:
             data_path = os.path.join(pathToCsv)
             matchedPointsDF = pd.read_csv(data_path, sep=",", header=None)
@@ -192,7 +194,7 @@ class Triangulation:
             pts2 = []
 
             for i, (m, n) in enumerate(matches):
-                if m.distance < 0.85 * n.distance:
+                if m.distance < 0.80 * n.distance:
                     good.append(m)
                     pts2.append(self.feature_2.kps[m.trainIdx].pt)
                     pts1.append(self.feature_1.kps[m.queryIdx].pt)
@@ -203,17 +205,18 @@ class Triangulation:
             print("Opencv Matched found :{} feature correspondences".format(len(self.matches)))
 
     def drawMathces(self, path):
-        OutImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,outImg=None)
-        cv2.imwrite(path,OutImage)
+        OutImage = cv2.drawMatches(self.img1, self.feature_1.kps, self.img2, self.feature_2.kps, self.matches,
+                                   outImg=None)
+        cv2.imwrite(path, OutImage)
 
     def findRTmatrices(self):
 
         pts1 = self.match_pts1
         pts2 = self.match_pts2
-        left_points = np.zeros((pts1.shape[0],3))
-        right_points = np.zeros((pts2.shape[0],3))
+        left_points = np.zeros((pts1.shape[0], 3))
+        right_points = np.zeros((pts2.shape[0], 3))
 
-        R = np.dot(self.R2,self.R1)
+        R = np.dot(self.R2, self.R1)
         T = - np.dot(self.R2, self.R1).dot(self.T1) - self.T2
 
         # R = np.multiply(self.R2, self.R1.T)
@@ -221,11 +224,11 @@ class Triangulation:
         stop = 1
 
         for i in range(self.match_pts1.shape[0]):
-            norm1 = self.K_inv.dot([self.match_pts1[i][0],self.match_pts1[i][1], 1.0])
-            norm2 = self.K_inv.dot([self.match_pts2[i][0],self.match_pts2[i][1], 1.0])
+            norm1 = self.K_inv.dot([self.match_pts1[i][0], self.match_pts1[i][1], 1.0])
+            norm2 = self.K_inv.dot([self.match_pts2[i][0], self.match_pts2[i][1], 1.0])
 
-            left_points[i,:] = norm1
-            right_points[i,:] = norm2
+            left_points[i, :] = norm1
+            right_points[i, :] = norm2
 
         self.norm_1 = left_points
         self.norm_2 = right_points
@@ -233,12 +236,10 @@ class Triangulation:
         self.Rt1 = np.hstack((np.eye(3), np.zeros((3, 1))))
         self.Rt2 = np.hstack((R, T.reshape(3, 1)))
 
-    def point_cloud(self, title, plot = True):
+    def point_cloud(self, title, plot=True):
         first_inliers = np.array(self.norm_1).reshape(-1, 3)[:, :2]
         second_inliers = np.array(self.norm_2).reshape(-1, 3)[:, :2]
         pts4D = cv2.triangulatePoints(self.Rt1, self.Rt2, first_inliers.T,
-                                      second_inliers.T).T
-        pts4D = cv2.triangulatePoints(self.K.dot(self.Rt1), self.K.dot(self.Rt2), first_inliers.T,
                                       second_inliers.T).T
         pts3D = pts4D[:, :3] / np.repeat(pts4D[:, 3], 3).reshape(-1, 3)
         Ys = pts3D[:, 0]
@@ -252,7 +253,11 @@ class Triangulation:
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
             ax.set_zlabel('Z')
+            ax.set_xlim3d(-100, 100)
+            ax.set_ylim3d(-20, 100)
+            ax.set_zlim3d(-20, 30)
             plt.title('3D point cloud: {}'.format(title))
+            plt.savefig("3D_ground_truth.png")
             plt.show()
 
         self.pts3D = pts3D
