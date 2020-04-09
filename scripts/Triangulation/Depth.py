@@ -192,7 +192,7 @@ class Triangulation:
             pts2 = []
 
             for i, (m, n) in enumerate(matches):
-                if m.distance < 0.80 * n.distance:
+                if m.distance < 0.85 * n.distance:
                     good.append(m)
                     pts2.append(self.feature_2.kps[m.trainIdx].pt)
                     pts1.append(self.feature_1.kps[m.queryIdx].pt)
