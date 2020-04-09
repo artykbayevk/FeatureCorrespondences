@@ -1,12 +1,13 @@
-import os
 import glob
 import json
+import os
 import subprocess
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 from scripts.Triangulation.Depth import Triangulation
 from scripts.Triangulation.HausdorffDist import Hausdorff
-from scripts.email import send_email
 
 BASE = os.getcwd()
 
@@ -63,8 +64,6 @@ class Stereo:
 
         self.limit_solutions = str(n_sols)
 
-
-
     def compute_ground_truth(self):
         opencv = Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
         opencv.load_imgs(self.img1_path, self.img2_path)
@@ -104,7 +103,7 @@ class Stereo:
             self.compute_LP()
 
         for f_i in range(1, 100):
-            julia= Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
+            julia = Triangulation(K=self.K, R1=self.R1, R2=self.R2, T1=self.T1, T2=self.T2)
             julia.load_imgs(self.img1_path, self.img2_path)
             julia.findRootSIFTFeatures(n_components=self.n_components)
             f_path = os.path.join(self.exp_dir, 'matchedPoints_' + str(f_i) + '.csv')
@@ -140,7 +139,7 @@ for i in range(1, 2):
     )
 
     stereo.compute_ground_truth()
-    # stereo.julia_method(run_julia = False)
+    stereo.julia_method(run_julia=True)
     # stereo.compute_LP()
     # print("Pair: {} finished".format(str(i)))
 
