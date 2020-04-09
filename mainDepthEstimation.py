@@ -8,6 +8,9 @@ from scripts.Triangulation.Depth import Triangulation
 from scripts.Triangulation.HausdorffDist import Hausdorff
 from scripts.email import send_email
 
+BASE = os.getcwd()
+print(BASE)
+
 class Stereo:
     def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, n_sols = 100):
         folder = glob.glob(os.path.join(path,'*'))
@@ -68,6 +71,8 @@ class Stereo:
         opencv.findRootSIFTFeatures(n_components=self.n_components)
         opencv.matchingRootSIFTFeatures()
         opencv.findRTmatrices()
+        matched_img = os.path.join(os.path.dirname(self.img1_path), "matchedGT.png")
+        opencv.drawMathces(matched_img)
         if self.show_imgs:
             f = plt.figure()
             f.add_subplot(1, 2, 1)
@@ -75,8 +80,6 @@ class Stereo:
             f.add_subplot(1, 2, 2)
             plt.imshow(opencv.img2, cmap="gray")
             plt.show(block=True)
-            matched_img = os.path.join(os.path.dirname(self.img1_path), "matchedGT.png")
-            opencv.drawMathces(matched_img)
             matched = plt.imread(matched_img)
             plt.imshow(matched, cmap="gray")
             plt.show()
@@ -85,7 +88,7 @@ class Stereo:
 
     def compute_LP(self):
         process = subprocess.Popen(
-            ['julia', r'C:\Users\user\Documents\Research\FeatureCorrespondenes\scripts\DepthEstimation.jl',
+            ['julia', os.path.join(BASE, "scripts", "DepthEstimation.jl"),
              self.img1_path,
              self.img2_path,
              self.main_path,
@@ -95,7 +98,6 @@ class Stereo:
         stdout, stderr = process.communicate()
         # print(stdout, stderr)
         self.opt_solutions = len(glob.glob(os.path.join(self.exp_dir, "*.csv")))
-
 
     def julia_method(self, run_julia=True):
         if run_julia:
@@ -122,12 +124,15 @@ class Stereo:
                                                                            dist_man_avg,
                                                                            dist_man_max, dist_euc_avg, dist_euc_max))
 
-with open(r"C:\Users\user\Documents\Research\FeatureCorrespondenes\config\config.json", 'r') as f:
+
+CONFIG_PATH = os.path.join(BASE, "config", "config.json")
+with open(CONFIG_PATH, 'r') as f:
     CONFIG = json.load(f)["config"]
 
-for i in range(0,1):
+for i in range(1, 2):
+    pair_path = os.path.join(BASE, "data","dataset", "pair_".format(str(i)))
     stereo = Stereo(
-        path = r'C:\Users\user\Documents\Research\FeatureCorrespondenes\data\dataset_2\main\pair_{}'.format(str(i)),
+        path=pair_path,
         n_components = int(CONFIG["SIFTFeatures"]),
         plot_ground_truth=True,
         show_imgs = True,
@@ -135,11 +140,9 @@ for i in range(0,1):
     )
 
     stereo.compute_ground_truth()
-    stereo.julia_method(run_julia = False)
+    # stereo.julia_method(run_julia = False)
     # stereo.compute_LP()
-    print("Pair: {} finished".format(str(i)))
-
-
+    # print("Pair: {} finished".format(str(i)))
 
 
 # send_email(
@@ -149,3 +152,4 @@ for i in range(0,1):
 #     subject="Deep Learning Model",
 #     body="Its ready"
 # )
+
