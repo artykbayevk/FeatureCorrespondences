@@ -17,6 +17,5 @@ data/DepthEstimationSummary.xlsx
 *.pdf
 *.xlsx
 matchedPoints*
-data/dataset/stereo_heuristic_data/*.csv
-data/dataset_2
+
 data/origin
