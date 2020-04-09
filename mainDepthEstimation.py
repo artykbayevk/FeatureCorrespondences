@@ -9,7 +9,7 @@ from scripts.Triangulation.HausdorffDist import Hausdorff
 from scripts.email import send_email
 
 BASE = os.getcwd()
-print(BASE)
+
 
 class Stereo:
     def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, n_sols = 100):
@@ -130,7 +130,7 @@ with open(CONFIG_PATH, 'r') as f:
     CONFIG = json.load(f)["config"]
 
 for i in range(1, 2):
-    pair_path = os.path.join(BASE, "data","dataset", "pair_".format(str(i)))
+    pair_path = os.path.join(BASE, "data", "dataset", "pair_{}".format(str(i)))
     stereo = Stereo(
         path=pair_path,
         n_components = int(CONFIG["SIFTFeatures"]),
