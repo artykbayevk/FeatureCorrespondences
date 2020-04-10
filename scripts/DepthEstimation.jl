@@ -240,8 +240,8 @@ for n_sol in 1:cnt
     """
 
 
-    # path = "../data\\pair\\lastLPMatched.png"
-    # py"scene.drawMatches"(path)
+
+    py"scene.drawMatches"(ARGS[6])
 
 
     matched_final_1 = deepcopy(matched_pts1[1:i-1, :])

@@ -194,7 +194,7 @@ class Triangulation:
             pts2 = []
 
             for i, (m, n) in enumerate(matches):
-                if m.distance < 0.80 * n.distance:
+                if m.distance < 0.90 * n.distance:
                     good.append(m)
                     pts2.append(self.feature_2.kps[m.trainIdx].pt)
                     pts1.append(self.feature_1.kps[m.queryIdx].pt)
@@ -253,11 +253,11 @@ class Triangulation:
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
             ax.set_zlabel('Z')
-            ax.set_xlim3d(-100, 100)
-            ax.set_ylim3d(-20, 100)
-            ax.set_zlim3d(-20, 30)
+            # ax.set_xlim3d(-100, 100)
+            # ax.set_ylim3d(-100, 100)
+            # ax.set_zlim3d(-80, 80)
             plt.title('3D point cloud: {}'.format(title))
-            plt.savefig("3D_ground_truth.png")
+            # plt.savefig("3D_ground_truth.png")
             plt.show()
 
         self.pts3D = pts3D

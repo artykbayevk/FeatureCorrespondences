@@ -15,6 +15,7 @@ CONFIG_PATH = os.path.join(BASE, "config", "config.json")
 with open(CONFIG_PATH, 'r') as f:
     CONFIG = json.load(f)["config"]
 
+
 class Stereo:
     def __init__(self, path,n_components, plot_ground_truth = False, show_imgs = False, n_sols = 100):
         folder = glob.glob(os.path.join(path,'*'))
@@ -94,17 +95,19 @@ class Stereo:
             julia_path = "/Applications/Julia-1.0.app/Contents/Resources/julia/bin/julia"
         else:
             julia_path = "julia"
+        matched_path = os.path.join(os.path.dirname(self.img1_path), 'matched_LP.png')
         process = subprocess.Popen(
             [julia_path, os.path.join(BASE, "scripts", "DepthEstimation.jl"),
              self.img1_path,
              self.img2_path,
              self.main_path,
              self.limit_solutions,
-             CONFIG_PATH],
+             CONFIG_PATH,
+             matched_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        # print(stdout, stderr)
+        print(stdout, stderr)
         self.opt_solutions = len(glob.glob(os.path.join(self.exp_dir, "*.csv")))
 
     def julia_method(self, run_julia=True):
@@ -119,6 +122,7 @@ class Stereo:
             julia.matchingRootSIFTFeatures(f_path, True)
             julia.findRTmatrices()
             julia.point_cloud(plot=self.draw_plot, title="Our method #{}".format(f_i))
+
             pred = julia.pts3D
             metrics = Hausdorff(u=pred, v=self.target)
             dist_cheb_avg = metrics.distance(d_type="cheb", criteria="avg")
@@ -133,20 +137,18 @@ class Stereo:
                                                                            dist_man_max, dist_euc_avg, dist_euc_max))
 
 
-
-
-for i in range(20, 21):
+for i in range(1, 2):
     pair_path = os.path.join(BASE, "data", "dataset", "pair_{}".format(str(i)))
     stereo = Stereo(
         path=pair_path,
-        n_components = int(CONFIG["SIFTFeatures"]),
+        n_components=int(CONFIG["SIFTFeatures"]),
         plot_ground_truth=True,
-        show_imgs=False,
+        show_imgs=True,
         n_sols=100
     )
 
     stereo.compute_ground_truth()
-    # stereo.julia_method(run_julia=True)
+    stereo.julia_method(run_julia=False)
     # stereo.compute_LP()
     print("Pair: {} finished".format(str(i)))
 
