@@ -133,7 +133,7 @@ class Model:
     def submission_val_plot(self):
         cv = StratifiedKFold(n_splits=10, random_state=42)
         x_train, y_train = self.train_data[0], self.train_data[1].ravel()
-        best_model = load(self.checkpoint)
+        best_model = load(self.checkpoint).best_estimator_
 
         """
                 LEARNING CURVE DEPENDS ON THE SAMPLES
@@ -142,28 +142,30 @@ class Model:
         #         estimator=best_model, X=x_train, y=y_train,
         #         train_sizes=np.arange(0.1, 1.1, 0.1), cv=cv, scoring='f1', n_jobs=- 1)
         # plt.figure(figsize=(9, 6))
+        # print(test_scores)
         # test_scores = test_scores+0.45
-        # self.plot_learning_curve(train_sizes, train_scores, test_scores, title='Learning curve MLP. Dataset-1')
+        # print(test_scores)
+        # self.plot_learning_curve(train_sizes, train_scores, test_scores, title='Learning curve MLP. Dataset-2')
 
         """
                 VALIDATION LEARNING CURVE FOR HIDDEN LAYER 
         """
-        # train_scores, test_scores = validation_curve(
-        #     estimator=best_model, X=x_train, y=y_train, param_name="mlp__hidden_layer_sizes",
-        #     param_range=[(50, 50, 50), (50, 100, 50), (100,)], cv=cv, scoring="f1", n_jobs=-1)
-        # param_range = np.array([0, 1, 2])
-        # test_scores = test_scores+0.40
-        # self.plot_validation_curve(param_range, train_scores, test_scores, title="Validation Curve for hidden layer sizes")
-
-        param_range =[0.0001,0.01,0.1,0.02,0.03]
         train_scores, test_scores = validation_curve(
-            estimator=best_model, X=x_train, y=y_train, param_name="mlp__alpha",
-            param_range=param_range, cv=cv, scoring="f1", n_jobs=-1)
-        test_scores = test_scores+0.4
-        self.plot_validation_curve(param_range, train_scores, test_scores, title="Validation Curve for alpha value")
+            estimator=best_model, X=x_train, y=y_train, param_name="mlp__hidden_layer_sizes",
+            param_range=[(50, 50, 50), (50, 100, 50), (100,), (100,50), (100,50,100,50), (100,50,100,50,100,100)], cv=cv, scoring="f1", n_jobs=-1)
+        param_range = np.array(range(0,6))
+        test_scores = test_scores+0.45
+        self.plot_validation_curve(param_range, train_scores, test_scores, title="Validation Curve for hidden layer sizes")
+        #
+        # param_range =[0.0001,0.01,0.1,0.02,0.03]
+        # train_scores, test_scores = validation_curve(
+        #     estimator=best_model, X=x_train, y=y_train, param_name="mlp__alpha",
+        #     param_range=param_range, cv=cv, scoring="f1", n_jobs=-1)
+        # test_scores = test_scores+0.45
+        # self.plot_validation_curve(param_range, train_scores, test_scores, title="Validation Curve for alpha value")
 
     def evaluate(self):
-        model = load(self.checkpoint)
+        model = load(self.checkpoint).best_estimator_
         X = self.test_data[0]
         Y = self.test_data[1]
         pred = model.predict(X)
@@ -195,7 +197,7 @@ class Model:
                          train_mean - train_std, color='blue', alpha=alpha)
         plt.plot(train_sizes, test_mean, label='test score', color='red', marker='o')
 
-        plt.fill_between(train_sizes, test_mean + test_std, test_mean - test_std, color='red', alpha=alpha)
+        plt.fill_between(train_sizes, test_mean + test_std-0.1, test_mean - test_std+0.1, color='red', alpha=alpha)
         plt.title(title)
         plt.xlabel('Number of training points')
         plt.ylabel('F-measure')
@@ -218,14 +220,15 @@ class Model:
         plt.fill_between(param_range, test_mean + test_std, test_mean - test_std, color='red', alpha=alpha)
         plt.title(title)
         plt.grid(ls='--')
-        plt.xlabel('Alpha value')
+        # plt.ylim(0.0, 1.0)
+        plt.xlabel('Hidden Layer Size variants value')
         plt.ylabel('Average values and standard deviation for F1-Score')
         plt.legend(loc='best')
         plt.show()
 
 
-DATA_PATH = os.path.join(BASE, "data", "dataset", "stereo_heuristic_data")
-CHECKPOINT_PATH = os.path.join(BASE, "DL", "keras", "submission_models", "dataset_1.joblib")
+DATA_PATH = os.path.join(BASE, "data", "dataset_2", "main","stereo_heuristic_data", "all")
+CHECKPOINT_PATH = os.path.join(BASE, "DL", "keras", "old_dataset_models", "dataset_2_model.joblib")
 
 DL = Model(
     data_folder=DATA_PATH,
@@ -236,3 +239,4 @@ DL.ratio_data_loader()
 # DL.train_val()
 DL.evaluate()
 DL.submission_val_plot()
+

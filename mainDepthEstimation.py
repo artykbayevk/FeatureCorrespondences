@@ -137,8 +137,8 @@ class Stereo:
                                                                            dist_man_max, dist_euc_avg, dist_euc_max))
 
 
-for i in range(1, 2):
-    pair_path = os.path.join(BASE, "data", "dataset", "pair_{}".format(str(i)))
+for i in range(52, 53):
+    pair_path = os.path.join(BASE, "data", "dataset_2","main","pair_{}".format(str(i)))
     stereo = Stereo(
         path=pair_path,
         n_components=int(CONFIG["SIFTFeatures"]),
